@@ -5,9 +5,53 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../app/generated/prisma"
+  output   = "../lib/generated/prisma"
 }
 
 datasource db {
   provider = "postgresql"
+
+}
+enum Currency{
+  KES
+  EUR
+  GBP
+  USD
+}
+enum Frequency{
+  WEEEKLY
+  BIWEEKLY
+  MONTHLY
+  QUARTERLY
+  ANNUALLY
+  IRREGULAR
+}
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  passwordHash String
+  name         String
+  baseCurrency Currency  @default(KES)
+  country      String?
+  onboardedAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  incomeSources IncomeSource[]
+
+  @@index([email])
+}
+
+model IncomeSource {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  amount    Decimal   @db.Decimal(14, 2)
+  currency  Currency
+  frequency Frequency
+  isActive  Boolean   @default(true)
+  createdAt DateTime  @default(now())
+
+  @@index([userId])
 }
