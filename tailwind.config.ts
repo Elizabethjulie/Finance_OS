@@ -5,18 +5,26 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        background: "#FAFAFA",
-        foreground: "#1A1A1A",
-        accent: {
-          DEFAULT: "#0F766E", // muted teal — the one restrained accent color
-          hover: "#0B5C56",
+        background: "#F8FAF9",
+        foreground: "#111827",
+        brand: {
+          DEFAULT: "#0F5147",
+          hover: "#0C433A",
+          light: "#E8F5F1",
+          subtle: "#F0F9F6",
+          border: "#A5D8CD",
         },
-        muted: "#6B7280",
-        border: "#E5E7EB",
+        accent: {
+          DEFAULT: "#0F5147", // align default accent with the primary brand teal
+          hover: "#0C433A",
+          light: "#E8F5F1",
+        },
+        muted: "#64748B",
+        border: "#E5EBE8",
         danger: "#B91C1C",
       },
       borderRadius: {
-        card: "12px",
+        card: "16px",
       },
     },
   },

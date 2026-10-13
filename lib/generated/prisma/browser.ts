@@ -27,3 +27,18 @@ export type User = Prisma.UserModel
  * 
  */
 export type IncomeSource = Prisma.IncomeSourceModel
+/**
+ * Model Account
+ * 
+ */
+export type Account = Prisma.AccountModel
+/**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
+ * Model Transaction
+ * 
+ */
+export type Transaction = Prisma.TransactionModel

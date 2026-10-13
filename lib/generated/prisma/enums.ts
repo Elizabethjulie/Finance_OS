@@ -29,3 +29,28 @@ export const Frequency = {
 } as const
 
 export type Frequency = (typeof Frequency)[keyof typeof Frequency]
+
+
+export const AccountType = {
+  BANK: 'BANK',
+  MOBILE_MONEY: 'MOBILE_MONEY',
+  MMF: 'MMF',
+  INVESTMENT: 'INVESTMENT',
+  CASH: 'CASH',
+  SAVINGS: 'SAVINGS',
+  OTHER: 'OTHER'
+} as const
+
+export type AccountType = (typeof AccountType)[keyof typeof AccountType]
+
+
+export const TransactionType = {
+  INCOME: 'INCOME',
+  EXPENSE: 'EXPENSE',
+  TRANSFER: 'TRANSFER',
+  INVESTMENT_CONTRIBUTION: 'INVESTMENT_CONTRIBUTION',
+  WITHDRAWAL: 'WITHDRAWAL',
+  REFUND: 'REFUND'
+} as const
+
+export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]

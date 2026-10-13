@@ -37,7 +37,10 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-  incomeSources IncomeSource[]
+    incomeSources IncomeSource[]
+  accounts      Account[]
+  categories    Category[]
+  transactions  Transaction[]
 
   @@index([email])
 }
@@ -54,4 +57,73 @@ model IncomeSource {
   createdAt DateTime  @default(now())
 
   @@index([userId])
+}
+enum AccountType {
+  BANK
+  MOBILE_MONEY
+  MMF
+  INVESTMENT
+  CASH
+  SAVINGS
+  OTHER
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+  TRANSFER
+  INVESTMENT_CONTRIBUTION
+  WITHDRAWAL
+  REFUND
+}
+
+model Account {
+  id         String      @id @default(cuid())
+  userId     String
+  user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name       String
+  type       AccountType
+  currency   Currency
+  isArchived Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+
+  transactions Transaction[]
+
+  @@index([userId])
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  userId    String?  // null = global default category, shared by everyone
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name      String
+  icon      String?
+  isDefault Boolean  @default(false)
+
+  transactions Transaction[]
+
+  @@unique([userId, name])
+  @@index([userId])
+}
+
+model Transaction {
+  id          String          @id @default(cuid())
+  userId      String
+  user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accountId   String
+  account     Account         @relation(fields: [accountId], references: [id])
+  categoryId  String?
+  category    Category?       @relation(fields: [categoryId], references: [id])
+  type        TransactionType
+  amount      Decimal         @db.Decimal(14, 2)
+  currency    Currency
+  description String
+  notes       String?
+  date        DateTime
+  createdAt   DateTime        @default(now())
+  deletedAt   DateTime?       // soft delete — see note below
+
+  @@index([userId, date])
+  @@index([userId, categoryId])
+  @@index([accountId])
 }
