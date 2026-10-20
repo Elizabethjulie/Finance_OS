@@ -17,6 +17,7 @@ import {
   LightbulbIcon,
 } from "@/components/ui/icons";
 import type { Account, AccountType } from "@/lib/generated/prisma/client";
+import type { AccountWithBalance } from "@/services/account/balances";
 
 interface AccountsClientProps {
   user: {
@@ -24,9 +25,21 @@ interface AccountsClientProps {
     baseCurrency: string;
   };
   accounts: Account[];
+  accountBalances?: AccountWithBalance[];
 }
 
-export function AccountsClient({ user, accounts }: AccountsClientProps) {
+function formatMoneyDisplay(value: number): string {
+  return value.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+}
+
+export function AccountsClient({
+  user,
+  accounts,
+  accountBalances = [],
+}: AccountsClientProps) {
   const [isAddAccountOpen, setIsAddAccountOpen] = useState(false);
   const [selectedGroupType, setSelectedGroupType] = useState<AccountType>("BANK");
   const [isSyncing, startSync] = useTransition();
@@ -41,146 +54,75 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
       ? "£"
       : "$";
 
-  // Fallback defaults to match mockups
-  const defaultBankData = [
-    {
-      id: "bank-1",
-      name: "Chase Premier Checking",
-      badge: "Primary spending account",
-      subtext: "Account: •••• 4821 • USD",
-      status: "● Real-time Chase sync",
-      balanceLabel: "Available balance",
-      balance: "6,240.80",
-      iconType: "bank",
-    },
-    {
-      id: "bank-2",
-      name: "Ally High-Yield Savings",
-      badge: "4.25% APY",
-      subtext: "Account: •••• 9014 • USD",
-      status: "▲ +$24.10 interest this month",
-      balanceLabel: "Available balance",
-      balance: "7,150.00",
-      iconType: "piggy",
-    },
-  ];
+  // Map real user accounts with computed balances into groups
+  const sourceAccounts: AccountWithBalance[] =
+    accountBalances.length > 0
+      ? accountBalances
+      : accounts.map((a) => ({
+          id: a.id,
+          name: a.name,
+          type: a.type,
+          currency: a.currency,
+          balance: Number(a.openingBalance ?? 0).toFixed(2),
+        }));
 
-  const defaultMobileData = [
-    {
-      id: "mob-1",
-      name: "M-Pesa / Mobile Wallet",
-      subtext: "Phone: +1(555) ••• 89 • USD",
-      status: "● Instant P2P active",
-      balanceLabel: "Wallet balance",
-      balance: "430.00",
-      iconType: "mobile",
-    },
-    {
-      id: "mob-2",
-      name: "Apple Cash / PayPal",
-      subtext: "Direct Device Pass • USD",
-      status: "Ready for contactless tap",
-      balanceLabel: "Available balance",
-      balance: "180.20",
-      iconType: "wallet",
-    },
-  ];
-
-  const defaultMmfData = [
-    {
-      id: "mmf-1",
-      name: "Vanguard Prime MMF",
-      badge: "Liquid MMF",
-      subtext: "VMMXX • Auto-invest on • USD",
-      status: "5.16% 7-Day SEC Yield",
-      balanceLabel: "Portfolio value",
-      balance: "819.50",
-    },
-  ];
-
-  const defaultCashData = [
-    {
-      id: "cash-1",
-      name: "Everyday Wallet Cash",
-      subtext: "Pocket & Bedside Jar • USD",
-      status: "Last counted 2 days ago",
-      balanceLabel: "Counted cash",
-      balance: "120.00",
-    },
-  ];
-
-  // Incorporate any extra accounts created by the user
-  const customBankAccounts = accounts
-    .filter(
-      (a) =>
-        (a.type === "BANK" || a.type === "SAVINGS") &&
-        !defaultBankData.some((d) => d.name === a.name)
-    )
+  const allBankData = sourceAccounts
+    .filter((a) => a.type === "BANK" || a.type === "SAVINGS")
     .map((a) => ({
       id: a.id,
       name: a.name,
-      badge: a.type === "SAVINGS" ? "High-Yield Savings" : "Connected bank",
+      badge: a.type === "SAVINGS" ? "Savings" : "Bank Account",
       subtext: `Account: •••• ${a.id.slice(-4)} • ${a.currency}`,
-      status: "● Sync active",
+      status: "● Active account",
       balanceLabel: "Available balance",
-      balance: "0.00",
+      balanceValue: Number(a.balance) || 0,
+      balance: formatMoneyDisplay(Number(a.balance) || 0),
       iconType: a.type === "SAVINGS" ? "piggy" : "bank",
     }));
 
-  const allBankData = [...defaultBankData, ...customBankAccounts];
-
-  const customMobileData = accounts
-    .filter(
-      (a) =>
-        a.type === "MOBILE_MONEY" &&
-        !defaultMobileData.some((d) => d.name === a.name)
-    )
+  const allMobileData = sourceAccounts
+    .filter((a) => a.type === "MOBILE_MONEY")
     .map((a) => ({
       id: a.id,
       name: a.name,
-      subtext: `Wallet • ${a.currency}`,
-      status: "● Active",
+      subtext: `Mobile Wallet • ${a.currency}`,
+      status: "● Active wallet",
       balanceLabel: "Wallet balance",
-      balance: "0.00",
+      balanceValue: Number(a.balance) || 0,
+      balance: formatMoneyDisplay(Number(a.balance) || 0),
       iconType: "mobile",
     }));
 
-  const allMobileData = [...defaultMobileData, ...customMobileData];
-
-  const customMmfData = accounts
-    .filter(
-      (a) =>
-        (a.type === "MMF" || a.type === "INVESTMENT") &&
-        !defaultMmfData.some((d) => d.name === a.name)
-    )
+  const allMmfData = sourceAccounts
+    .filter((a) => a.type === "MMF" || a.type === "INVESTMENT")
     .map((a) => ({
       id: a.id,
       name: a.name,
-      badge: "Investment",
+      badge: a.type === "MMF" ? "MMF" : "Investment",
       subtext: `Fund • ${a.currency}`,
-      status: "Auto-invest ready",
+      status: "● Active fund",
       balanceLabel: "Portfolio value",
-      balance: "0.00",
+      balanceValue: Number(a.balance) || 0,
+      balance: formatMoneyDisplay(Number(a.balance) || 0),
     }));
 
-  const allMmfData = [...defaultMmfData, ...customMmfData];
-
-  const customCashData = accounts
-    .filter(
-      (a) =>
-        a.type === "CASH" &&
-        !defaultCashData.some((d) => d.name === a.name)
-    )
+  const allCashData = sourceAccounts
+    .filter((a) => a.type === "CASH")
     .map((a) => ({
       id: a.id,
       name: a.name,
       subtext: `Cash • ${a.currency}`,
-      status: "Active",
+      status: "● Active cash account",
       balanceLabel: "Counted cash",
-      balance: "0.00",
+      balanceValue: Number(a.balance) || 0,
+      balance: formatMoneyDisplay(Number(a.balance) || 0),
     }));
 
-  const allCashData = [...defaultCashData, ...customCashData];
+  const bankTotal = allBankData.reduce((sum, item) => sum + item.balanceValue, 0);
+  const mobileTotal = allMobileData.reduce((sum, item) => sum + item.balanceValue, 0);
+  const mmfTotal = allMmfData.reduce((sum, item) => sum + item.balanceValue, 0);
+  const cashTotal = allCashData.reduce((sum, item) => sum + item.balanceValue, 0);
+  const netAvailableTotal = bankTotal + mobileTotal + mmfTotal + cashTotal;
 
   function handleOpenAddGroup(type: AccountType) {
     setSelectedGroupType(type);
@@ -198,7 +140,7 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
   return (
     <div className="min-h-screen bg-[#F8FAF9] text-slate-800 flex flex-col">
       <Header
-        userName={user.name || "Alex Morgan"}
+        userName={user.name || "User"}
         planName="Standard Plan"
         accounts={accounts}
         defaultCurrency={user.baseCurrency}
@@ -213,7 +155,7 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
               <span>Protected by 256-bit Bank Grade Sync</span>
             </div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900">
-              Your Accounts & Wallets
+              Your Accounts &amp; Wallets
             </h1>
             <p className="text-xs sm:text-sm text-slate-500 mt-1">
               All your money places in one warm, organized space.
@@ -225,8 +167,13 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
             <div className="inline-flex items-center gap-2 bg-white border border-[#E5EBE8] px-3.5 py-1.5 rounded-full text-xs font-semibold text-slate-800 shadow-2xs">
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <span>Net Available:</span>
-              <span className="text-slate-900">{currencySymbol}14,820.50</span>
-              <span className="text-slate-400 font-normal">across 6 accounts</span>
+              <span className="text-slate-900">
+                {currencySymbol}
+                {formatMoneyDisplay(netAvailableTotal)}
+              </span>
+              <span className="text-slate-400 font-normal">
+                across {sourceAccounts.length} {sourceAccounts.length === 1 ? "account" : "accounts"}
+              </span>
             </div>
 
             {/* Sync Balances */}
@@ -274,60 +221,72 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-slate-900">Bank Accounts</h2>
-                <p className="text-[11px] text-slate-400">2 accounts connected</p>
+                <p className="text-[11px] text-slate-400">
+                  {allBankData.length} {allBankData.length === 1 ? "account" : "accounts"} connected
+                </p>
               </div>
             </div>
             <div className="text-xs sm:text-sm font-semibold text-slate-800">
-              Total: <span className="font-bold">{currencySymbol}13,390.80</span>
+              Total:{" "}
+              <span className="font-bold">
+                {currencySymbol}
+                {formatMoneyDisplay(bankTotal)}
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allBankData.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between hover:shadow-sm transition-shadow"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
-                        {item.iconType === "bank" ? (
-                          <BankIcon className="w-5 h-5" />
-                        ) : (
-                          <PiggyBankIcon className="w-5 h-5" />
-                        )}
-                      </div>
-                      <div>
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
-                          {item.badge && (
-                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8F5F1] text-[#0F5147]">
-                              {item.badge}
-                            </span>
+          {allBankData.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-[#E5EBE8] p-6 text-center text-xs text-slate-400">
+              No bank or savings accounts added yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allBankData.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between hover:shadow-sm transition-shadow"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-sky-50 text-sky-700 flex items-center justify-center">
+                          {item.iconType === "bank" ? (
+                            <BankIcon className="w-5 h-5" />
+                          ) : (
+                            <PiggyBankIcon className="w-5 h-5" />
                           )}
                         </div>
-                        <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                            {item.badge && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8F5F1] text-[#0F5147]">
+                                {item.badge}
+                              </span>
+                            )}
+                          </div>
+                          <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
+                    <span className="text-xs text-slate-500">{item.status}</span>
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        {item.balanceLabel}
+                      </div>
+                      <div className="text-xl font-bold text-slate-900 tracking-tight">
+                        {currencySymbol}
+                        {item.balance}
                       </div>
                     </div>
                   </div>
                 </div>
-
-                <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
-                  <span className="text-xs text-slate-500">{item.status}</span>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      {item.balanceLabel}
-                    </div>
-                    <div className="text-xl font-bold text-slate-900 tracking-tight">
-                      {currencySymbol}
-                      {item.balance}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <button
             type="button"
@@ -348,55 +307,67 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
               </div>
               <div>
                 <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                  Mobile Money & Digital Wallets
+                  Mobile Money &amp; Digital Wallets
                 </h2>
-                <p className="text-[11px] text-slate-400">2 wallets active</p>
+                <p className="text-[11px] text-slate-400">
+                  {allMobileData.length} {allMobileData.length === 1 ? "wallet" : "wallets"} active
+                </p>
               </div>
             </div>
             <div className="text-xs sm:text-sm font-semibold text-slate-800">
-              Total: <span className="font-bold">{currencySymbol}610.20</span>
+              Total:{" "}
+              <span className="font-bold">
+                {currencySymbol}
+                {formatMoneyDisplay(mobileTotal)}
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {allMobileData.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between hover:shadow-sm transition-shadow"
-              >
-                <div>
-                  <div className="flex items-start justify-between gap-2 mb-2">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0F5147] flex items-center justify-center">
-                        {item.iconType === "mobile" ? (
-                          <MobileTowerIcon className="w-5 h-5" />
-                        ) : (
-                          <WalletIcon className="w-5 h-5" />
-                        )}
-                      </div>
-                      <div>
-                        <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
-                        <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+          {allMobileData.length === 0 ? (
+            <div className="bg-white rounded-2xl border border-[#E5EBE8] p-6 text-center text-xs text-slate-400">
+              No mobile money or digital wallets added yet.
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {allMobileData.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between hover:shadow-sm transition-shadow"
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2 mb-2">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-teal-50 text-[#0F5147] flex items-center justify-center">
+                          {item.iconType === "mobile" ? (
+                            <MobileTowerIcon className="w-5 h-5" />
+                          ) : (
+                            <WalletIcon className="w-5 h-5" />
+                          )}
+                        </div>
+                        <div>
+                          <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                          <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
-                  <span className="text-xs text-slate-500">{item.status}</span>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      {item.balanceLabel}
-                    </div>
-                    <div className="text-xl font-bold text-slate-900 tracking-tight">
-                      {currencySymbol}
-                      {item.balance}
+                  <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
+                    <span className="text-xs text-slate-500">{item.status}</span>
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        {item.balanceLabel}
+                      </div>
+                      <div className="text-xl font-bold text-slate-900 tracking-tight">
+                        {currencySymbol}
+                        {item.balance}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <button
             type="button"
@@ -419,54 +390,63 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
                 </div>
                 <div>
                   <h2 className="text-sm sm:text-base font-bold text-slate-900">
-                    Money Market Funds (MMF) & Investments
+                    Money Market Funds (MMF) &amp; Investments
                   </h2>
-                  <p className="text-[11px] text-slate-400">1 fund growing</p>
+                  <p className="text-[11px] text-slate-400">
+                    {allMmfData.length} {allMmfData.length === 1 ? "fund" : "funds"} growing
+                  </p>
                 </div>
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-800">
-                {currencySymbol}819.50
+                {currencySymbol}
+                {formatMoneyDisplay(mmfTotal)}
               </div>
             </div>
 
-            {allMmfData.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
-                      <LeafInvestIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
-                        {item.badge && (
-                          <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8F5F1] text-[#0F5147]">
-                            {item.badge}
-                          </span>
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
-                  <span className="text-xs text-slate-500">{item.status}</span>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      {item.balanceLabel}
-                    </div>
-                    <div className="text-xl font-bold text-slate-900 tracking-tight">
-                      {currencySymbol}
-                      {item.balance}
-                    </div>
-                  </div>
-                </div>
+            {allMmfData.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[#E5EBE8] p-6 text-center text-xs text-slate-400">
+                No MMF or investment accounts added yet.
               </div>
-            ))}
+            ) : (
+              allMmfData.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center">
+                        <LeafInvestIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                          {item.badge && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-[#E8F5F1] text-[#0F5147]">
+                              {item.badge}
+                            </span>
+                          )}
+                        </div>
+                        <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
+                    <span className="text-xs text-slate-500">{item.status}</span>
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        {item.balanceLabel}
+                      </div>
+                      <div className="text-xl font-bold text-slate-900 tracking-tight">
+                        {currencySymbol}
+                        {item.balance}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
 
             <button
               type="button"
@@ -487,45 +467,54 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
                 </div>
                 <div>
                   <h2 className="text-sm sm:text-base font-bold text-slate-900">Physical Cash</h2>
-                  <p className="text-[11px] text-slate-400">1 tangible purse</p>
+                  <p className="text-[11px] text-slate-400">
+                    {allCashData.length} tangible {allCashData.length === 1 ? "purse" : "purses"}
+                  </p>
                 </div>
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-800">
-                {currencySymbol}120.00
+                {currencySymbol}
+                {formatMoneyDisplay(cashTotal)}
               </div>
             </div>
 
-            {allCashData.map((item) => (
-              <div
-                key={item.id}
-                className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
-                      <CashJarIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
-                      <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
-                  <span className="text-xs text-slate-500">{item.status}</span>
-                  <div className="text-right">
-                    <div className="text-[10px] text-slate-400 uppercase tracking-wider">
-                      {item.balanceLabel}
-                    </div>
-                    <div className="text-xl font-bold text-slate-900 tracking-tight">
-                      {currencySymbol}
-                      {item.balance}
-                    </div>
-                  </div>
-                </div>
+            {allCashData.length === 0 ? (
+              <div className="bg-white rounded-2xl border border-[#E5EBE8] p-6 text-center text-xs text-slate-400">
+                No physical cash accounts added yet.
               </div>
-            ))}
+            ) : (
+              allCashData.map((item) => (
+                <div
+                  key={item.id}
+                  className="bg-white rounded-2xl border border-[#E5EBE8] p-5 shadow-xs flex flex-col justify-between"
+                >
+                  <div>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-xl bg-amber-50 text-amber-700 flex items-center justify-center">
+                        <CashJarIcon className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <h3 className="text-sm font-bold text-slate-900">{item.name}</h3>
+                        <p className="text-xs text-slate-400 mt-0.5">{item.subtext}</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-6 flex items-end justify-between border-t border-slate-50 pt-3">
+                    <span className="text-xs text-slate-500">{item.status}</span>
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400 uppercase tracking-wider">
+                        {item.balanceLabel}
+                      </div>
+                      <div className="text-xl font-bold text-slate-900 tracking-tight">
+                        {currencySymbol}
+                        {item.balance}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))
+            )}
 
             <button
               type="button"
@@ -549,7 +538,7 @@ export function AccountsClient({ user, accounts }: AccountsClientProps) {
                 Everything is up-to-date!
               </h4>
               <p className="text-xs text-slate-500">
-                Your accounts were refreshed 7 minutes ago. Next scheduled reconciliation tonight at midnight.
+                All account balances are calculated deterministically from your opening balances and recorded transactions.
               </p>
             </div>
           </div>

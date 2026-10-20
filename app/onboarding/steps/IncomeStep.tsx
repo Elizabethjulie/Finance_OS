@@ -23,15 +23,12 @@ interface Props {
 
 type DraftRow = IncomeSourceInput;
 
-function defaultInitialRows(currency: DraftRow["currency"]): DraftRow[] {
-  return [
-    { name: "Primary Salary", amount: "4200.00", currency, frequency: "MONTHLY" },
-    { name: "Freelance Design", amount: "850.00", currency, frequency: "BIWEEKLY" },
-  ];
-}
-
 function emptyRow(currency: DraftRow["currency"]): DraftRow {
   return { name: "", amount: "", currency, frequency: "MONTHLY" };
+}
+
+function defaultInitialRows(currency: DraftRow["currency"]): DraftRow[] {
+  return [emptyRow(currency)];
 }
 
 export function IncomeStep({ defaultCurrency, onBack, onSubmit }: Props) {

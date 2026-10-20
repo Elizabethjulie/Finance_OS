@@ -16,6 +16,7 @@ import {
   PlusIcon,
 } from "@/components/ui/icons";
 import type { IncomeSource, Account, Transaction } from "@/lib/generated/prisma/client";
+import type { AccountWithBalance } from "@/services/account/balances";
 
 interface DashboardClientProps {
   user: {
@@ -24,18 +25,19 @@ interface DashboardClientProps {
   };
   incomeSources: IncomeSource[];
   accounts: Account[];
-  transactions: (Transaction & { account?: Account | null })[];
+  accountBalances?: AccountWithBalance[];
+  transactions: (Transaction & { account?: Account | null; transferAccount?: Account | null })[];
 }
 
 export function DashboardClient({
   user,
   incomeSources,
   accounts,
+  accountBalances = [],
   transactions,
 }: DashboardClientProps) {
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
 
-  // Compute realistic or fallback data
   const currencySymbol =
     user.baseCurrency === "KES"
       ? "KSh"
@@ -45,7 +47,7 @@ export function DashboardClient({
       ? "£"
       : "$";
 
-  // Calculate monthly income total from income sources
+  // Calculate monthly income total from user's real income sources
   const monthlyTotalNumber = incomeSources.reduce((acc, src) => {
     const val = Number(src.amount) || 0;
     const freq = (src.frequency || "MONTHLY").toUpperCase();
@@ -56,50 +58,57 @@ export function DashboardClient({
     return acc + val;
   }, 0);
 
-  const formattedMonthlyTotal =
-    monthlyTotalNumber > 0
-      ? `${currencySymbol}${monthlyTotalNumber.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`
-      : `${currencySymbol}5,900.00`;
+  const formattedMonthlyTotal = `${currencySymbol}${monthlyTotalNumber.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
-  // Display recurring income sources: if none in db, preview mock items matching screenshot
-  const displaySources =
-    incomeSources.length > 0
-      ? incomeSources
-      : [
-          {
-            id: "src-1",
-            name: "Product Designer at Acme Co",
-            amount: 4200.0,
-            currency: user.baseCurrency,
-            frequency: "MONTHLY",
-          },
-          {
-            id: "src-2",
-            name: "Freelance Consulting",
-            amount: 850.0,
-            currency: user.baseCurrency,
-            frequency: "BIWEEKLY",
-          },
-        ];
+  const displaySources = incomeSources;
 
-  // Net worth calculation from transactions / accounts
-  const totalNetWorthNumber = transactions.reduce((acc, tx) => {
+  // Net worth calculation from real account balances (openingBalance + transactions)
+  const totalNetWorthNumber =
+    accountBalances.length > 0
+      ? accountBalances.reduce((acc, acct) => acc + (Number(acct.balance) || 0), 0)
+      : transactions.reduce((acc, tx) => {
+          const val = Number(tx.amount) || 0;
+          if (tx.type === "INCOME") return acc + val;
+          if (tx.type === "EXPENSE") return acc - val;
+          return acc;
+        }, 0);
+
+  const formattedNetWorth = `${currencySymbol}${totalNetWorthNumber.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
+
+  // Monthly cash flow from real transactions
+  const netCashFlowNumber = transactions.reduce((acc, tx) => {
     const val = Number(tx.amount) || 0;
     if (tx.type === "INCOME") return acc + val;
     if (tx.type === "EXPENSE") return acc - val;
     return acc;
   }, 0);
 
-  const formattedNetWorth =
+  const formattedCashFlow =
     transactions.length > 0
-      ? `${currencySymbol}${totalNetWorthNumber.toLocaleString(undefined, {
+      ? `${netCashFlowNumber >= 0 ? "+" : ""}${currencySymbol}${netCashFlowNumber.toLocaleString(undefined, {
           minimumFractionDigits: 2,
           maximumFractionDigits: 2,
         })}`
       : `${currencySymbol}0.00`;
+
+  // Real savings & investment total across SAVINGS, MMF, INVESTMENT accounts
+  const savingsAccounts = accountBalances.filter(
+    (a) => a.type === "SAVINGS" || a.type === "MMF" || a.type === "INVESTMENT"
+  );
+  const totalSavingsNumber = savingsAccounts.reduce(
+    (acc, a) => acc + (Number(a.balance) || 0),
+    0
+  );
+  const formattedSavingsTotal = `${currencySymbol}${totalSavingsNumber.toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  })}`;
 
   // Format today's date
   const todayFormatted = new Intl.DateTimeFormat("en-US", {
@@ -112,7 +121,7 @@ export function DashboardClient({
     <div className="min-h-screen bg-[#F8FAF9] text-slate-800 flex flex-col">
       {/* Shared Navigation Header */}
       <Header
-        userName={user.name || "Alex Morgan"}
+        userName={user.name || "User"}
         planName="Standard Plan"
         accounts={accounts}
         defaultCurrency={user.baseCurrency}
@@ -123,7 +132,7 @@ export function DashboardClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-              Good morning, {user.name.split(" ")[0] || "Alex"} <span className="text-2xl">👋</span>
+              Good morning, {user.name.split(" ")[0] || "there"} <span className="text-2xl">👋</span>
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               Here is your fresh financial workspace. Everything is calm and up to date.
@@ -159,9 +168,9 @@ export function DashboardClient({
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
               <span className="w-1.5 h-1.5 rounded-full bg-sky-400" />
               <span>
-                {transactions.length === 0
-                  ? "Awaiting first transaction data"
-                  : "Updated with latest logs"}
+                {accounts.length === 0
+                  ? "No accounts connected yet"
+                  : `Across ${accounts.length} active account${accounts.length === 1 ? "" : "s"}`}
               </span>
             </div>
           </div>
@@ -176,33 +185,43 @@ export function DashboardClient({
             </div>
             <div className="flex items-baseline gap-1.5 my-1">
               <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
-                {currencySymbol}0.00
+                {formattedCashFlow}
               </span>
               <span className="text-xs font-semibold text-slate-400">/ mo</span>
             </div>
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
               <span className="w-1.5 h-1.5 rounded-full bg-teal-400" />
-              <span>Awaiting first transaction data</span>
+              <span>
+                {transactions.length === 0
+                  ? "Awaiting first transaction data"
+                  : "Updated with latest logs"}
+              </span>
             </div>
           </div>
 
-          {/* Card 3: Active Savings Goal */}
+          {/* Card 3: Savings & Investments */}
           <div className="bg-white rounded-2xl border border-[#E5EBE8] p-5 sm:p-6 shadow-xs hover:shadow-sm transition-shadow">
             <div className="flex items-center justify-between text-xs font-medium text-slate-500 mb-3">
-              <span>Active Savings Goal</span>
+              <span>Savings &amp; Investments</span>
               <div className="w-8 h-8 rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center">
                 <TargetIcon className="w-4 h-4" />
               </div>
             </div>
             <div className="flex items-baseline gap-1.5 my-1">
-              <span className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                Target: {currencySymbol}10k
+              <span className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+                {formattedSavingsTotal}
               </span>
-              <span className="text-xs font-medium text-slate-500">Emergency Fund</span>
+              <span className="text-xs font-semibold text-slate-400 uppercase">
+                {user.baseCurrency}
+              </span>
             </div>
             <div className="mt-4 flex items-center gap-2 text-xs text-slate-400">
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400" />
-              <span>Awaiting first transaction data</span>
+              <span>
+                {savingsAccounts.length === 0
+                  ? "No savings or investment accounts yet"
+                  : `${savingsAccounts.length} savings/investment account${savingsAccounts.length === 1 ? "" : "s"}`}
+              </span>
             </div>
           </div>
         </div>
@@ -216,7 +235,7 @@ export function DashboardClient({
               <div className="flex items-center justify-between mb-1">
                 <h2 className="text-base font-bold text-slate-900">Recurring Income Baseline</h2>
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#E8F5F1] text-[#0F5147]">
-                  + {displaySources.length} active sources
+                  {displaySources.length} active {displaySources.length === 1 ? "source" : "sources"}
                 </span>
               </div>
               <p className="text-xs text-slate-400 mb-6">
@@ -224,59 +243,64 @@ export function DashboardClient({
               </p>
 
               {/* Source Rows */}
-              <div className="space-y-4">
-                {displaySources.map((source, index) => {
-                  const isFirst = index === 0;
-                  const amt = Number(source.amount) || 0;
-                  const freqText =
-                    source.frequency?.toLowerCase() === "biweekly"
-                      ? "/ bi-weekly"
-                      : source.frequency?.toLowerCase() === "weekly" ||
-                        source.frequency?.toLowerCase() === "weeekly"
-                      ? "/ weekly"
-                      : "/ month";
-                  const nextDate = isFirst ? "Nov 1st" : "Oct 28th";
+              {displaySources.length === 0 ? (
+                <div className="py-6 text-center text-xs text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                  No recurring income sources configured yet.
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {displaySources.map((source, index) => {
+                    const isFirst = index === 0;
+                    const amt = Number(source.amount) || 0;
+                    const freqText =
+                      source.frequency?.toLowerCase() === "biweekly"
+                        ? "/ bi-weekly"
+                        : source.frequency?.toLowerCase() === "weekly" ||
+                          source.frequency?.toLowerCase() === "weeekly"
+                        ? "/ weekly"
+                        : "/ month";
 
-                  return (
-                    <div
-                      key={source.id}
-                      className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div
-                          className={`w-9 h-9 rounded-xl flex items-center justify-center ${
-                            isFirst ? "bg-[#E8F5F1] text-[#0F5147]" : "bg-orange-50 text-amber-600"
-                          }`}
-                        >
-                          {isFirst ? (
-                            <BriefcaseIcon className="w-4 h-4" />
-                          ) : (
-                            <LaptopIcon className="w-4 h-4" />
-                          )}
+                    return (
+                      <div
+                        key={source.id}
+                        className="flex items-center justify-between py-2 border-b border-slate-50 last:border-0"
+                      >
+                        <div className="flex items-center gap-3">
+                          <div
+                            className={`w-9 h-9 rounded-xl flex items-center justify-center ${
+                              isFirst ? "bg-[#E8F5F1] text-[#0F5147]" : "bg-orange-50 text-amber-600"
+                            }`}
+                          >
+                            {isFirst ? (
+                              <BriefcaseIcon className="w-4 h-4" />
+                            ) : (
+                              <LaptopIcon className="w-4 h-4" />
+                            )}
+                          </div>
+                          <div>
+                            <div className="text-xs sm:text-sm font-semibold text-slate-900">
+                              {source.name}
+                            </div>
+                            <div className="text-[11px] text-slate-400 flex items-center gap-2">
+                              <span>{source.currency || user.baseCurrency}</span>
+                              <span>•</span>
+                              <span>{freqText}</span>
+                            </div>
+                          </div>
                         </div>
-                        <div>
-                          <div className="text-xs sm:text-sm font-semibold text-slate-900">
-                            {source.name}
-                          </div>
-                          <div className="text-[11px] text-slate-400 flex items-center gap-2">
-                            <span>Next expected: {nextDate}</span>
-                            <span>•</span>
-                            <span>{freqText}</span>
-                          </div>
+
+                        <div className="text-sm font-bold text-[#0F5147]">
+                          +{currencySymbol}
+                          {amt.toLocaleString(undefined, {
+                            minimumFractionDigits: 2,
+                            maximumFractionDigits: 2,
+                          })}
                         </div>
                       </div>
-
-                      <div className="text-sm font-bold text-[#0F5147]">
-                        +{currencySymbol}
-                        {amt.toLocaleString(undefined, {
-                          minimumFractionDigits: 2,
-                          maximumFractionDigits: 2,
-                        })}
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
+                    );
+                  })}
+                </div>
+              )}
             </div>
 
             {/* Monthly Total Card */}
@@ -360,15 +384,22 @@ export function DashboardClient({
                           {tx.description}
                         </p>
                         <p className="text-[11px] text-slate-400">
-                          {new Date(tx.date).toLocaleDateString()} • {tx.account?.name || "Account"}
+                          {new Date(tx.date).toLocaleDateString()} •{" "}
+                          {tx.type === "TRANSFER" && tx.transferAccount
+                            ? `${tx.account?.name || "Source"} → ${tx.transferAccount.name}`
+                            : tx.account?.name || "Account"}
                         </p>
                       </div>
                       <div
                         className={`text-xs sm:text-sm font-bold ${
-                          tx.type === "INCOME" ? "text-[#0F5147]" : "text-slate-800"
+                          tx.type === "INCOME"
+                            ? "text-[#0F5147]"
+                            : tx.type === "TRANSFER"
+                            ? "text-sky-700"
+                            : "text-slate-800"
                         }`}
                       >
-                        {tx.type === "INCOME" ? "+" : "-"}
+                        {tx.type === "INCOME" ? "+" : tx.type === "TRANSFER" ? "↔ " : "-"}
                         {currencySymbol}
                         {Number(tx.amount).toFixed(2)}
                       </div>

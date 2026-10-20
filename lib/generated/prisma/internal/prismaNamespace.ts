@@ -865,6 +865,7 @@ export const AccountScalarFieldEnum = {
   name: 'name',
   type: 'type',
   currency: 'currency',
+  openingBalance: 'openingBalance',
   isArchived: 'isArchived',
   createdAt: 'createdAt'
 } as const
@@ -887,6 +888,7 @@ export const TransactionScalarFieldEnum = {
   id: 'id',
   userId: 'userId',
   accountId: 'accountId',
+  transferAccountId: 'transferAccountId',
   categoryId: 'categoryId',
   type: 'type',
   amount: 'amount',

@@ -13,7 +13,7 @@ interface Props {
 }
 
 export function OnboardingWizard({ initialValues }: Props) {
-  const [stepIndex, setStepIndex] = useState(1); // Default to Step 2 to match mockup!
+  const [stepIndex, setStepIndex] = useState(0);
   const [personalInfo, setPersonalInfo] = useState<PersonalInfoInput>(initialValues);
 
   return (

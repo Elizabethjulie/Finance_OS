@@ -37,3 +37,5 @@ next-env.d.ts
 
 /app/generated/prisma
 .env
+postman/finance-os.postman_collection.json
+postman/finance-os.postman_environment.json

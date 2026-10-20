@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { Suspense, useState } from "react";
 import { useFormState } from "react-dom";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -18,7 +18,7 @@ import {
 
 const initialState: LoginFormState = {};
 
-export default function LoginPage() {
+function LoginContent() {
   const [state, formAction] = useFormState(loginAction, initialState);
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") ?? "/dashboard";
@@ -44,16 +44,13 @@ export default function LoginPage() {
       {/* Main Login Card */}
       <main className="max-w-md w-full mx-auto my-auto py-6">
         <div className="bg-white rounded-3xl border border-[#E5EBE8] p-7 sm:p-9 shadow-xs">
-          {/* Top Banner Alert (if account created or password reset) */}
-          {justCreatedAccount ? (
-            <div className="mb-6 rounded-xl bg-amber-50 border border-amber-200/80 p-3 flex items-center gap-2 text-xs text-amber-900">
-              <span className="text-amber-600 font-bold">✓</span>
-              <span>Your account was created — log in to continue.</span>
-            </div>
-          ) : (
+          {/* Top Banner Alert (shown only right after signup) */}
+          {justCreatedAccount && (
             <div className="mb-6 rounded-xl bg-[#FEF9EE] border border-[#FDE68A] p-2.5 flex items-center gap-2 text-xs text-amber-900">
-              <span className="text-amber-600 font-bold">✓</span>
-              <span>We sent an access reset link to your email if requested.</span>
+              <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px]">
+                ✓
+              </span>
+              <span>🎉 Your account was created! Log in to get started</span>
             </div>
           )}
 
@@ -103,9 +100,8 @@ export default function LoginPage() {
                   name="email"
                   type="email"
                   autoComplete="email"
-                  defaultValue="alex@example.com"
                   required
-                  placeholder="alex@example.com"
+                  placeholder="you@example.com"
                   className="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-10 pr-3.5 py-2.5 text-xs sm:text-sm text-slate-900 focus:border-[#0F5147] focus:bg-white focus:outline-none focus:ring-2 focus:ring-[#0F5147]/10 transition-all placeholder:text-slate-400"
                 />
               </div>
@@ -225,5 +221,13 @@ export default function LoginPage() {
 
       <div />
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#F8FAF9]" />}>
+      <LoginContent />
+    </Suspense>
   );
 }

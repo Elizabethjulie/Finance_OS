@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { CloseIcon, CheckIcon, CalendarIcon } from "@/components/ui/icons";
+import { CloseIcon, CheckIcon } from "@/components/ui/icons";
 import { createTransactionAction } from "@/app/dashboard/actions";
 import type { Account } from "@/lib/generated/prisma/client";
 
@@ -46,12 +46,13 @@ export function AddTransactionModal({
   defaultType = "INCOME",
 }: AddTransactionModalProps) {
   const [activeType, setActiveType] = useState<"EXPENSE" | "INCOME" | "TRANSFER">(defaultType);
-  const [amount, setAmount] = useState("1850.00");
+  const [amount, setAmount] = useState("");
   const [accountId, setAccountId] = useState(accounts[0]?.id || "");
+  const [transferAccountId, setTransferAccountId] = useState(accounts[1]?.id || "");
   const [date, setDate] = useState(() => new Date().toISOString().split("T")[0]);
-  const [selectedCategory, setSelectedCategory] = useState("Freelance Income");
-  const [description, setDescription] = useState("Acme Client: Milestone Payout");
-  const [notes, setNotes] = useState("Q4 project final deliverable signed off. #tax-deductible #freelance");
+  const [selectedCategory, setSelectedCategory] = useState("Food & Dining");
+  const [description, setDescription] = useState("");
+  const [notes, setNotes] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -59,18 +60,22 @@ export function AddTransactionModal({
     if (accounts.length > 0 && (!accountId || !accounts.some((a) => a.id === accountId))) {
       setAccountId(accounts[0].id);
     }
-  }, [accounts, accountId]);
+    if (
+      accounts.length > 1 &&
+      (!transferAccountId || !accounts.some((a) => a.id === transferAccountId))
+    ) {
+      const dest = accounts.find((a) => a.id !== (accountId || accounts[0].id));
+      if (dest) setTransferAccountId(dest.id);
+    }
+  }, [accounts, accountId, transferAccountId]);
 
   useEffect(() => {
     if (activeType === "INCOME") {
-      setSelectedCategory("Freelance Income");
-      setDescription("Acme Client: Milestone Payout");
+      setSelectedCategory("Salary & Wages");
     } else if (activeType === "EXPENSE") {
       setSelectedCategory("Food & Dining");
-      setDescription("Grocery store & fresh market");
     } else {
       setSelectedCategory("Bank Transfer");
-      setDescription("Transfer to savings wallet");
     }
   }, [activeType]);
 
@@ -106,14 +111,26 @@ export function AddTransactionModal({
       return;
     }
 
+    if (activeType === "TRANSFER") {
+      if (!transferAccountId) {
+        setError("Please choose a destination account for the transfer");
+        return;
+      }
+      if (transferAccountId === accountId) {
+        setError("Source and destination accounts must be different");
+        return;
+      }
+    }
+
     setIsPending(true);
 
     try {
       const result = await createTransactionAction({
         accountId,
+        transferAccountId: activeType === "TRANSFER" ? transferAccountId : undefined,
         type: activeType,
         amount: Number(amount).toFixed(2),
-        currency: defaultCurrency as any,
+        currency: defaultCurrency as "USD" | "KES" | "EUR" | "GBP",
         description: description.trim() || `${activeType} - ${selectedCategory}`,
         notes: notes.trim(),
         date: new Date(date).toISOString(),
@@ -126,8 +143,8 @@ export function AddTransactionModal({
         setIsPending(false);
         onClose();
       }
-    } catch (err: any) {
-      setError(err?.message || "An unexpected error occurred");
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : "An unexpected error occurred");
       setIsPending(false);
     }
   }
@@ -219,7 +236,11 @@ export function AddTransactionModal({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">
-                {activeType === "INCOME" ? "Deposit Account" : "Account"}
+                {activeType === "INCOME"
+                  ? "Deposit Account"
+                  : activeType === "TRANSFER"
+                  ? "From Account"
+                  : "Account"}
               </label>
               <select
                 value={accountId}
@@ -233,7 +254,25 @@ export function AddTransactionModal({
                 ))}
               </select>
             </div>
-            <div>
+            {activeType === "TRANSFER" && (
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1">
+                  To Account
+                </label>
+                <select
+                  value={transferAccountId}
+                  onChange={(e) => setTransferAccountId(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
+                >
+                  {accounts.map((acc) => (
+                    <option key={acc.id} value={acc.id}>
+                      {acc.name} — {acc.currency}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
+            <div className={activeType === "TRANSFER" ? "sm:col-span-2" : ""}>
               <label className="block text-xs font-medium text-slate-500 mb-1">Date & Time</label>
               <div className="relative flex items-center">
                 <input

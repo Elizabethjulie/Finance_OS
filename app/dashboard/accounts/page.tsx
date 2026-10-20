@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { listAccounts } from "@/services/account/account";
+import { listAccountsWithBalances } from "@/services/account/balances";
 import { AccountsClient } from "./AccountsClient";
 
 export default async function AccountsPage() {
@@ -16,7 +17,10 @@ export default async function AccountsPage() {
     redirect("/onboarding");
   }
 
-  const accounts = await listAccounts(userId);
+  const [accounts, balancesResult] = await Promise.all([
+    listAccounts(userId),
+    listAccountsWithBalances(userId),
+  ]);
 
   return (
     <AccountsClient
@@ -25,6 +29,7 @@ export default async function AccountsPage() {
         baseCurrency: user.baseCurrency,
       }}
       accounts={accounts}
+      accountBalances={balancesResult.accounts}
     />
   );
 }

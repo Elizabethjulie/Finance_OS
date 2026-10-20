@@ -1,3 +1,4 @@
+import Decimal from "decimal.js";
 import { z } from "zod";
 
 export const currencyEnum = z.enum(["KES", "EUR", "GBP", "USD"]);
@@ -27,7 +28,7 @@ const moneyAmount = z
   .refine((val) => /^\d+(\.\d{1,2})?$/.test(val), {
     message: "Enter a valid amount (up to 2 decimal places).",
   })
-  .refine((val) => Number(val) > 0, { message: "Amount must be greater than zero." });
+  .refine((val) => new Decimal(val).gt(0), { message: "Amount must be greater than zero." });
 
 export const incomeSourceSchema = z.object({
   name: z.string().trim().min(1, "Give this income source a name.").max(100),

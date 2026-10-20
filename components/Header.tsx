@@ -16,10 +16,10 @@ interface HeaderProps {
 }
 
 export function Header({
-  userName = "Alex Morgan",
-  planName = "Standard Plan",
+  userName = "Account",
+  planName = "Personal Workspace",
   accounts = [],
-  defaultCurrency = "USD",
+  defaultCurrency = "KES",
 }: HeaderProps) {
   const pathname = usePathname();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -32,12 +32,14 @@ export function Header({
   const isInsights = pathname.startsWith("/dashboard/insights");
 
   // Get initials for avatar
-  const initials = userName
-    .split(" ")
-    .map((part) => part[0])
-    .join("")
-    .slice(0, 2)
-    .toUpperCase() || "AM";
+  const initials =
+    userName
+      .split(" ")
+      .filter(Boolean)
+      .map((part) => part[0])
+      .join("")
+      .slice(0, 2)
+      .toUpperCase() || "U";
 
   return (
     <>

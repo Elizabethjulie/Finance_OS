@@ -20,8 +20,18 @@ export type AccountModel = runtime.Types.Result.DefaultSelection<Prisma.$Account
 
 export type AggregateAccount = {
   _count: AccountCountAggregateOutputType | null
+  _avg: AccountAvgAggregateOutputType | null
+  _sum: AccountSumAggregateOutputType | null
   _min: AccountMinAggregateOutputType | null
   _max: AccountMaxAggregateOutputType | null
+}
+
+export type AccountAvgAggregateOutputType = {
+  openingBalance: runtime.Decimal | null
+}
+
+export type AccountSumAggregateOutputType = {
+  openingBalance: runtime.Decimal | null
 }
 
 export type AccountMinAggregateOutputType = {
@@ -30,6 +40,7 @@ export type AccountMinAggregateOutputType = {
   name: string | null
   type: $Enums.AccountType | null
   currency: $Enums.Currency | null
+  openingBalance: runtime.Decimal | null
   isArchived: boolean | null
   createdAt: Date | null
 }
@@ -40,6 +51,7 @@ export type AccountMaxAggregateOutputType = {
   name: string | null
   type: $Enums.AccountType | null
   currency: $Enums.Currency | null
+  openingBalance: runtime.Decimal | null
   isArchived: boolean | null
   createdAt: Date | null
 }
@@ -50,11 +62,20 @@ export type AccountCountAggregateOutputType = {
   name: number
   type: number
   currency: number
+  openingBalance: number
   isArchived: number
   createdAt: number
   _all: number
 }
 
+
+export type AccountAvgAggregateInputType = {
+  openingBalance?: true
+}
+
+export type AccountSumAggregateInputType = {
+  openingBalance?: true
+}
 
 export type AccountMinAggregateInputType = {
   id?: true
@@ -62,6 +83,7 @@ export type AccountMinAggregateInputType = {
   name?: true
   type?: true
   currency?: true
+  openingBalance?: true
   isArchived?: true
   createdAt?: true
 }
@@ -72,6 +94,7 @@ export type AccountMaxAggregateInputType = {
   name?: true
   type?: true
   currency?: true
+  openingBalance?: true
   isArchived?: true
   createdAt?: true
 }
@@ -82,6 +105,7 @@ export type AccountCountAggregateInputType = {
   name?: true
   type?: true
   currency?: true
+  openingBalance?: true
   isArchived?: true
   createdAt?: true
   _all?: true
@@ -125,6 +149,18 @@ export type AccountAggregateArgs<ExtArgs extends runtime.Types.Extensions.Intern
   /**
    * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
    * 
+   * Select which fields to average
+  **/
+  _avg?: AccountAvgAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
+   * Select which fields to sum
+  **/
+  _sum?: AccountSumAggregateInputType
+  /**
+   * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+   * 
    * Select which fields to find the minimum value
   **/
   _min?: AccountMinAggregateInputType
@@ -155,6 +191,8 @@ export type AccountGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   _count?: AccountCountAggregateInputType | true
+  _avg?: AccountAvgAggregateInputType
+  _sum?: AccountSumAggregateInputType
   _min?: AccountMinAggregateInputType
   _max?: AccountMaxAggregateInputType
 }
@@ -165,9 +203,12 @@ export type AccountGroupByOutputType = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance: runtime.Decimal
   isArchived: boolean
   createdAt: Date
   _count: AccountCountAggregateOutputType | null
+  _avg: AccountAvgAggregateOutputType | null
+  _sum: AccountSumAggregateOutputType | null
   _min: AccountMinAggregateOutputType | null
   _max: AccountMaxAggregateOutputType | null
 }
@@ -196,10 +237,12 @@ export type AccountWhereInput = {
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.EnumAccountTypeFilter<"Account"> | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFilter<"Account"> | $Enums.Currency
+  openingBalance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFilter<"Account"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
+  incomingTransfers?: Prisma.TransactionListRelationFilter
 }
 
 export type AccountOrderByWithRelationInput = {
@@ -208,10 +251,12 @@ export type AccountOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  openingBalance?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
+  incomingTransfers?: Prisma.TransactionOrderByRelationAggregateInput
 }
 
 export type AccountWhereUniqueInput = Prisma.AtLeast<{
@@ -223,10 +268,12 @@ export type AccountWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.EnumAccountTypeFilter<"Account"> | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFilter<"Account"> | $Enums.Currency
+  openingBalance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFilter<"Account"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   transactions?: Prisma.TransactionListRelationFilter
+  incomingTransfers?: Prisma.TransactionListRelationFilter
 }, "id">
 
 export type AccountOrderByWithAggregationInput = {
@@ -235,11 +282,14 @@ export type AccountOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  openingBalance?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.AccountCountOrderByAggregateInput
+  _avg?: Prisma.AccountAvgOrderByAggregateInput
   _max?: Prisma.AccountMaxOrderByAggregateInput
   _min?: Prisma.AccountMinOrderByAggregateInput
+  _sum?: Prisma.AccountSumOrderByAggregateInput
 }
 
 export type AccountScalarWhereWithAggregatesInput = {
@@ -251,6 +301,7 @@ export type AccountScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"Account"> | string
   type?: Prisma.EnumAccountTypeWithAggregatesFilter<"Account"> | $Enums.AccountType
   currency?: Prisma.EnumCurrencyWithAggregatesFilter<"Account"> | $Enums.Currency
+  openingBalance?: Prisma.DecimalWithAggregatesFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolWithAggregatesFilter<"Account"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Account"> | Date | string
 }
@@ -260,10 +311,12 @@ export type AccountCreateInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAccountsInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountUncheckedCreateInput = {
@@ -272,9 +325,11 @@ export type AccountUncheckedCreateInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountUpdateInput = {
@@ -282,10 +337,12 @@ export type AccountUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAccountsNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUpdateManyWithoutTransferAccountNestedInput
 }
 
 export type AccountUncheckedUpdateInput = {
@@ -294,9 +351,11 @@ export type AccountUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutTransferAccountNestedInput
 }
 
 export type AccountCreateManyInput = {
@@ -305,6 +364,7 @@ export type AccountCreateManyInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
 }
@@ -314,6 +374,7 @@ export type AccountUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -324,6 +385,7 @@ export type AccountUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -344,8 +406,13 @@ export type AccountCountOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  openingBalance?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AccountAvgOrderByAggregateInput = {
+  openingBalance?: Prisma.SortOrder
 }
 
 export type AccountMaxOrderByAggregateInput = {
@@ -354,6 +421,7 @@ export type AccountMaxOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  openingBalance?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
 }
@@ -364,13 +432,23 @@ export type AccountMinOrderByAggregateInput = {
   name?: Prisma.SortOrder
   type?: Prisma.SortOrder
   currency?: Prisma.SortOrder
+  openingBalance?: Prisma.SortOrder
   isArchived?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
+}
+
+export type AccountSumOrderByAggregateInput = {
+  openingBalance?: Prisma.SortOrder
 }
 
 export type AccountScalarRelationFilter = {
   is?: Prisma.AccountWhereInput
   isNot?: Prisma.AccountWhereInput
+}
+
+export type AccountNullableScalarRelationFilter = {
+  is?: Prisma.AccountWhereInput | null
+  isNot?: Prisma.AccountWhereInput | null
 }
 
 export type AccountCreateNestedManyWithoutUserInput = {
@@ -425,6 +503,12 @@ export type AccountCreateNestedOneWithoutTransactionsInput = {
   connect?: Prisma.AccountWhereUniqueInput
 }
 
+export type AccountCreateNestedOneWithoutIncomingTransfersInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutIncomingTransfersInput, Prisma.AccountUncheckedCreateWithoutIncomingTransfersInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutIncomingTransfersInput
+  connect?: Prisma.AccountWhereUniqueInput
+}
+
 export type AccountUpdateOneRequiredWithoutTransactionsNestedInput = {
   create?: Prisma.XOR<Prisma.AccountCreateWithoutTransactionsInput, Prisma.AccountUncheckedCreateWithoutTransactionsInput>
   connectOrCreate?: Prisma.AccountCreateOrConnectWithoutTransactionsInput
@@ -433,14 +517,26 @@ export type AccountUpdateOneRequiredWithoutTransactionsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutTransactionsInput, Prisma.AccountUpdateWithoutTransactionsInput>, Prisma.AccountUncheckedUpdateWithoutTransactionsInput>
 }
 
+export type AccountUpdateOneWithoutIncomingTransfersNestedInput = {
+  create?: Prisma.XOR<Prisma.AccountCreateWithoutIncomingTransfersInput, Prisma.AccountUncheckedCreateWithoutIncomingTransfersInput>
+  connectOrCreate?: Prisma.AccountCreateOrConnectWithoutIncomingTransfersInput
+  upsert?: Prisma.AccountUpsertWithoutIncomingTransfersInput
+  disconnect?: Prisma.AccountWhereInput | boolean
+  delete?: Prisma.AccountWhereInput | boolean
+  connect?: Prisma.AccountWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.AccountUpdateToOneWithWhereWithoutIncomingTransfersInput, Prisma.AccountUpdateWithoutIncomingTransfersInput>, Prisma.AccountUncheckedUpdateWithoutIncomingTransfersInput>
+}
+
 export type AccountCreateWithoutUserInput = {
   id?: string
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
   transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountUncheckedCreateWithoutUserInput = {
@@ -448,9 +544,11 @@ export type AccountUncheckedCreateWithoutUserInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+  incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountCreateOrConnectWithoutUserInput = {
@@ -488,6 +586,7 @@ export type AccountScalarWhereInput = {
   name?: Prisma.StringFilter<"Account"> | string
   type?: Prisma.EnumAccountTypeFilter<"Account"> | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFilter<"Account"> | $Enums.Currency
+  openingBalance?: Prisma.DecimalFilter<"Account"> | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFilter<"Account"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Account"> | Date | string
 }
@@ -497,9 +596,11 @@ export type AccountCreateWithoutTransactionsInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutAccountsInput
+  incomingTransfers?: Prisma.TransactionCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountUncheckedCreateWithoutTransactionsInput = {
@@ -508,13 +609,44 @@ export type AccountUncheckedCreateWithoutTransactionsInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
+  incomingTransfers?: Prisma.TransactionUncheckedCreateNestedManyWithoutTransferAccountInput
 }
 
 export type AccountCreateOrConnectWithoutTransactionsInput = {
   where: Prisma.AccountWhereUniqueInput
   create: Prisma.XOR<Prisma.AccountCreateWithoutTransactionsInput, Prisma.AccountUncheckedCreateWithoutTransactionsInput>
+}
+
+export type AccountCreateWithoutIncomingTransfersInput = {
+  id?: string
+  name: string
+  type: $Enums.AccountType
+  currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isArchived?: boolean
+  createdAt?: Date | string
+  user: Prisma.UserCreateNestedOneWithoutAccountsInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutAccountInput
+}
+
+export type AccountUncheckedCreateWithoutIncomingTransfersInput = {
+  id?: string
+  userId: string
+  name: string
+  type: $Enums.AccountType
+  currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
+  isArchived?: boolean
+  createdAt?: Date | string
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutAccountInput
+}
+
+export type AccountCreateOrConnectWithoutIncomingTransfersInput = {
+  where: Prisma.AccountWhereUniqueInput
+  create: Prisma.XOR<Prisma.AccountCreateWithoutIncomingTransfersInput, Prisma.AccountUncheckedCreateWithoutIncomingTransfersInput>
 }
 
 export type AccountUpsertWithoutTransactionsInput = {
@@ -533,9 +665,11 @@ export type AccountUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutAccountsNestedInput
+  incomingTransfers?: Prisma.TransactionUpdateManyWithoutTransferAccountNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutTransactionsInput = {
@@ -544,8 +678,45 @@ export type AccountUncheckedUpdateWithoutTransactionsInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutTransferAccountNestedInput
+}
+
+export type AccountUpsertWithoutIncomingTransfersInput = {
+  update: Prisma.XOR<Prisma.AccountUpdateWithoutIncomingTransfersInput, Prisma.AccountUncheckedUpdateWithoutIncomingTransfersInput>
+  create: Prisma.XOR<Prisma.AccountCreateWithoutIncomingTransfersInput, Prisma.AccountUncheckedCreateWithoutIncomingTransfersInput>
+  where?: Prisma.AccountWhereInput
+}
+
+export type AccountUpdateToOneWithWhereWithoutIncomingTransfersInput = {
+  where?: Prisma.AccountWhereInput
+  data: Prisma.XOR<Prisma.AccountUpdateWithoutIncomingTransfersInput, Prisma.AccountUncheckedUpdateWithoutIncomingTransfersInput>
+}
+
+export type AccountUpdateWithoutIncomingTransfersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  user?: Prisma.UserUpdateOneRequiredWithoutAccountsNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+}
+
+export type AccountUncheckedUpdateWithoutIncomingTransfersInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
+  currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
 }
 
 export type AccountCreateManyUserInput = {
@@ -553,6 +724,7 @@ export type AccountCreateManyUserInput = {
   name: string
   type: $Enums.AccountType
   currency: $Enums.Currency
+  openingBalance?: runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: boolean
   createdAt?: Date | string
 }
@@ -562,9 +734,11 @@ export type AccountUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUpdateManyWithoutTransferAccountNestedInput
 }
 
 export type AccountUncheckedUpdateWithoutUserInput = {
@@ -572,9 +746,11 @@ export type AccountUncheckedUpdateWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutAccountNestedInput
+  incomingTransfers?: Prisma.TransactionUncheckedUpdateManyWithoutTransferAccountNestedInput
 }
 
 export type AccountUncheckedUpdateManyWithoutUserInput = {
@@ -582,6 +758,7 @@ export type AccountUncheckedUpdateManyWithoutUserInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.EnumAccountTypeFieldUpdateOperationsInput | $Enums.AccountType
   currency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  openingBalance?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
   isArchived?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -593,10 +770,12 @@ export type AccountUncheckedUpdateManyWithoutUserInput = {
 
 export type AccountCountOutputType = {
   transactions: number
+  incomingTransfers: number
 }
 
 export type AccountCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactions?: boolean | AccountCountOutputTypeCountTransactionsArgs
+  incomingTransfers?: boolean | AccountCountOutputTypeCountIncomingTransfersArgs
 }
 
 /**
@@ -616,6 +795,13 @@ export type AccountCountOutputTypeCountTransactionsArgs<ExtArgs extends runtime.
   where?: Prisma.TransactionWhereInput
 }
 
+/**
+ * AccountCountOutputType without action
+ */
+export type AccountCountOutputTypeCountIncomingTransfersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TransactionWhereInput
+}
+
 
 export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -623,10 +809,12 @@ export type AccountSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   name?: boolean
   type?: boolean
   currency?: boolean
+  openingBalance?: boolean
   isArchived?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Account$transactionsArgs<ExtArgs>
+  incomingTransfers?: boolean | Prisma.Account$incomingTransfersArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["account"]>
 
@@ -636,6 +824,7 @@ export type AccountSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   currency?: boolean
+  openingBalance?: boolean
   isArchived?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -647,6 +836,7 @@ export type AccountSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   name?: boolean
   type?: boolean
   currency?: boolean
+  openingBalance?: boolean
   isArchived?: boolean
   createdAt?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
@@ -658,14 +848,16 @@ export type AccountSelectScalar = {
   name?: boolean
   type?: boolean
   currency?: boolean
+  openingBalance?: boolean
   isArchived?: boolean
   createdAt?: boolean
 }
 
-export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "type" | "currency" | "isArchived" | "createdAt", ExtArgs["result"]["account"]>
+export type AccountOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "userId" | "name" | "type" | "currency" | "openingBalance" | "isArchived" | "createdAt", ExtArgs["result"]["account"]>
 export type AccountInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   transactions?: boolean | Prisma.Account$transactionsArgs<ExtArgs>
+  incomingTransfers?: boolean | Prisma.Account$incomingTransfersArgs<ExtArgs>
   _count?: boolean | Prisma.AccountCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AccountIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -680,6 +872,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   objects: {
     user: Prisma.$UserPayload<ExtArgs>
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
+    incomingTransfers: Prisma.$TransactionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -687,6 +880,7 @@ export type $AccountPayload<ExtArgs extends runtime.Types.Extensions.InternalArg
     name: string
     type: $Enums.AccountType
     currency: $Enums.Currency
+    openingBalance: runtime.Decimal
     isArchived: boolean
     createdAt: Date
   }, ExtArgs["result"]["account"]>
@@ -1085,6 +1279,7 @@ export interface Prisma__AccountClient<T, Null = never, ExtArgs extends runtime.
   readonly [Symbol.toStringTag]: "PrismaPromise"
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   transactions<T extends Prisma.Account$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  incomingTransfers<T extends Prisma.Account$incomingTransfersArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Account$incomingTransfersArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1119,6 +1314,7 @@ export interface AccountFieldRefs {
   readonly name: Prisma.FieldRef<"Account", 'String'>
   readonly type: Prisma.FieldRef<"Account", 'AccountType'>
   readonly currency: Prisma.FieldRef<"Account", 'Currency'>
+  readonly openingBalance: Prisma.FieldRef<"Account", 'Decimal'>
   readonly isArchived: Prisma.FieldRef<"Account", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Account", 'DateTime'>
 }
@@ -1525,6 +1721,30 @@ export type AccountDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Inter
  * Account.transactions
  */
 export type Account$transactionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Transaction
+   */
+  select?: Prisma.TransactionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Transaction
+   */
+  omit?: Prisma.TransactionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.TransactionInclude<ExtArgs> | null
+  where?: Prisma.TransactionWhereInput
+  orderBy?: Prisma.TransactionOrderByWithRelationInput | Prisma.TransactionOrderByWithRelationInput[]
+  cursor?: Prisma.TransactionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TransactionScalarFieldEnum | Prisma.TransactionScalarFieldEnum[]
+}
+
+/**
+ * Account.incomingTransfers
+ */
+export type Account$incomingTransfersArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the Transaction
    */

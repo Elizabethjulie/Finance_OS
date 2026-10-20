@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { listAccounts } from "@/services/account/account";
+import { listAccountsWithBalances } from "@/services/account/balances";
 import { listTransactions } from "@/services/transaction/transaction";
 import { DashboardClient } from "./DashboardClient";
 
@@ -17,8 +18,9 @@ export default async function DashboardPage() {
     redirect("/onboarding");
   }
 
-  const [accounts, transactions] = await Promise.all([
+  const [accounts, balancesResult, transactions] = await Promise.all([
     listAccounts(userId),
+    listAccountsWithBalances(userId),
     listTransactions(userId, 20),
   ]);
 
@@ -30,6 +32,7 @@ export default async function DashboardPage() {
       }}
       incomeSources={user.incomeSources}
       accounts={accounts}
+      accountBalances={balancesResult.accounts}
       transactions={transactions}
     />
   );

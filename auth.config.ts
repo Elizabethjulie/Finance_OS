@@ -8,7 +8,9 @@ export const authConfig = {
       const isLoggedIn = Boolean(auth?.user);
       const isProtected =
         nextUrl.pathname.startsWith("/dashboard") ||
-        nextUrl.pathname.startsWith("/onboarding");
+        nextUrl.pathname.startsWith("/onboarding")||
+        nextUrl.pathname.startsWith("/accounts") ||
+        nextUrl.pathname.startsWith("/transactions");
 
       if (isProtected) return isLoggedIn;
       return true;

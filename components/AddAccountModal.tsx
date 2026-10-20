@@ -26,11 +26,12 @@ export function AddAccountModal({
   isOpen,
   onClose,
   defaultType = "BANK",
-  defaultCurrency = "USD",
+  defaultCurrency = "KES",
 }: AddAccountModalProps) {
   const [name, setName] = useState("");
   const [type, setType] = useState<AccountType>(defaultType);
   const [currency, setCurrency] = useState(defaultCurrency);
+  const [openingBalance, setOpeningBalance] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -51,6 +52,7 @@ export function AddAccountModal({
         name: name.trim(),
         type,
         currency: currency as "USD" | "KES" | "EUR" | "GBP",
+        openingBalance: openingBalance.trim() || "0",
       });
 
       if (result.error) {
@@ -58,6 +60,7 @@ export function AddAccountModal({
         setIsPending(false);
       } else {
         setName("");
+        setOpeningBalance("");
         setIsPending(false);
         onClose();
       }
@@ -97,7 +100,7 @@ export function AddAccountModal({
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="e.g. Chase Premier Checking"
+              placeholder="e.g. KCB Checking or M-Pesa"
               className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
             />
           </div>
@@ -117,18 +120,35 @@ export function AddAccountModal({
             </select>
           </div>
 
-          <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Currency</label>
-            <select
-              value={currency}
-              onChange={(e) => setCurrency(e.target.value)}
-              className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
-            >
-              <option value="USD">USD — US Dollar</option>
-              <option value="KES">KES — Kenyan Shilling</option>
-              <option value="EUR">EUR — Euro</option>
-              <option value="GBP">GBP — British Pound</option>
-            </select>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Currency</label>
+              <select
+                value={currency}
+                onChange={(e) => setCurrency(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
+              >
+                <option value="KES">KES — Kenyan Shilling</option>
+                <option value="USD">USD — US Dollar</option>
+                <option value="EUR">EUR — Euro</option>
+                <option value="GBP">GBP — British Pound</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Opening Balance (optional)
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                min="0"
+                value={openingBalance}
+                onChange={(e) => setOpeningBalance(e.target.value)}
+                placeholder="0.00"
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
+              />
+            </div>
           </div>
 
           {error && (
@@ -165,4 +185,3 @@ export function AddAccountModal({
     </div>
   );
 }
-

@@ -83,11 +83,13 @@ model Account {
   user       User        @relation(fields: [userId], references: [id], onDelete: Cascade)
   name       String
   type       AccountType
-  currency   Currency
-  isArchived Boolean     @default(false)
-  createdAt  DateTime    @default(now())
+  currency       Currency
+  openingBalance Decimal     @default(0) @db.Decimal(14, 2)
+  isArchived     Boolean     @default(false)
+  createdAt      DateTime    @default(now())
 
-  transactions Transaction[]
+  transactions      Transaction[] @relation("TransactionAccount")
+  incomingTransfers Transaction[] @relation("TransferDestination") 
 
   @@index([userId])
 }
@@ -110,8 +112,10 @@ model Transaction {
   id          String          @id @default(cuid())
   userId      String
   user        User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-  accountId   String
-  account     Account         @relation(fields: [accountId], references: [id])
+  accountId         String
+  account           Account   @relation("TransactionAccount", fields: [accountId], references: [id])
+  transferAccountId String?
+  transferAccount   Account?  @relation("TransferDestination", fields: [transferAccountId], references: [id])
   categoryId  String?
   category    Category?       @relation(fields: [categoryId], references: [id])
   type        TransactionType
@@ -126,4 +130,5 @@ model Transaction {
   @@index([userId, date])
   @@index([userId, categoryId])
   @@index([accountId])
+  @@index([transferAccountId])
 }
