@@ -9,7 +9,8 @@
     "lint": "next lint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "prisma:seed": "tsx -r dotenv/config prisma/seed.ts"
+    "prisma:seed": "tsx -r dotenv/config prisma/seed.ts",
+    "db:clear": "tsx -r dotenv/config scripts/clear-db.ts"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.10.0",

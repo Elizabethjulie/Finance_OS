@@ -6,6 +6,7 @@ import {
   type IncomeSourceInput,
   type IncomeStepInput,
 } from "@/lib/validation/onboarding";
+import { getCurrencySymbol } from "@/lib/finance/money";
 import {
   BriefcaseIcon,
   LaptopIcon,
@@ -73,14 +74,7 @@ export function IncomeStep({ defaultCurrency, onBack, onSubmit }: Props) {
     }, 0);
   }, [rows]);
 
-  const currencySymbol =
-    defaultCurrency === "KES"
-      ? "KSh"
-      : defaultCurrency === "EUR"
-      ? "€"
-      : defaultCurrency === "GBP"
-      ? "£"
-      : "$";
+  const currencySymbol = getCurrencySymbol(defaultCurrency);
 
   const formattedBaseline = `${currencySymbol}${monthlyBaseline.toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -172,7 +166,7 @@ export function IncomeStep({ defaultCurrency, onBack, onSubmit }: Props) {
                     </label>
                     <div className="relative flex items-center">
                       <span className="absolute left-3 text-xs text-slate-400">
-                        {currencySymbol}
+                        {getCurrencySymbol(row.currency)}
                       </span>
                       <input
                         type="number"

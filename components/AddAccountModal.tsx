@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { CloseIcon, CheckIcon } from "@/components/ui/icons";
 import { createAccountAction } from "@/app/dashboard/actions";
 import type { AccountType } from "@/lib/generated/prisma/client";
+import { getCurrencySymbol } from "@/lib/finance/money";
 
 interface AddAccountModalProps {
   isOpen: boolean;
@@ -34,6 +35,16 @@ export function AddAccountModal({
   const [openingBalance, setOpeningBalance] = useState("");
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setType(defaultType);
+      setCurrency(defaultCurrency);
+      setName("");
+      setOpeningBalance("");
+      setError(null);
+    }
+  }, [isOpen, defaultType, defaultCurrency]);
 
   if (!isOpen) return null;
 
@@ -128,10 +139,10 @@ export function AddAccountModal({
                 onChange={(e) => setCurrency(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
               >
-                <option value="KES">KES — Kenyan Shilling</option>
-                <option value="USD">USD — US Dollar</option>
-                <option value="EUR">EUR — Euro</option>
-                <option value="GBP">GBP — British Pound</option>
+                <option value="KES">KES — Kenyan Shilling (KSh)</option>
+                <option value="EUR">EUR — Euro (€)</option>
+                <option value="USD">USD — US Dollar ($)</option>
+                <option value="GBP">GBP — British Pound (£)</option>
               </select>
             </div>
 
@@ -139,15 +150,20 @@ export function AddAccountModal({
               <label className="block text-xs font-medium text-slate-500 mb-1">
                 Opening Balance (optional)
               </label>
-              <input
-                type="number"
-                step="0.01"
-                min="0"
-                value={openingBalance}
-                onChange={(e) => setOpeningBalance(e.target.value)}
-                placeholder="0.00"
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
-              />
+              <div className="relative flex items-center">
+                <span className="absolute left-3 text-xs font-semibold text-slate-400">
+                  {getCurrencySymbol(currency)}
+                </span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={openingBalance}
+                  onChange={(e) => setOpeningBalance(e.target.value)}
+                  placeholder="0.00"
+                  className="w-full rounded-xl border border-slate-200 bg-white pl-10 pr-3.5 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
+                />
+              </div>
             </div>
           </div>
 

@@ -6,10 +6,14 @@ import { OnboardingWizard } from "./steps/OnboardingWizard";
 export default async function OnboardingPage() {
   const userId = await requireUserId();
 
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { name: true, baseCurrency: true, country: true, onboardedAt: true },
   });
+
+  if (!user) {
+    redirect("/login");
+  }
 
   if (user.onboardedAt) {
     redirect("/dashboard");

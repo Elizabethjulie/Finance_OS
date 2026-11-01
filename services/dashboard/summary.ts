@@ -2,8 +2,14 @@ import Decimal from "decimal.js";
 import { prisma } from "@/lib/db/prisma";
 import type { Currency } from "@/lib/generated/prisma/client";
 import { computeBalancesForAccounts, type TxRow } from "@/lib/finance/balance";
+import { computeBudgetVsActual, type BudgetVsActualSummary } from "@/lib/finance/budget";
 import { computeCashflow, type CashflowTxRow } from "@/lib/finance/cashflow";
 import { getMonthRange } from "@/lib/finance/dates";
+import {
+  computeGoalProgress,
+  type ComputedGoalProgress,
+  type GoalContributionRow,
+} from "@/lib/finance/goals";
 import { formatAmount, toDecimal } from "@/lib/finance/money";
 import type { AccountWithBalance } from "@/services/account/balances";
 
@@ -45,14 +51,14 @@ export type DashboardSummaryResult = {
     description: string;
     date: string;
   }>;
-  emergencyFundProgress: null;
-  budgetVsActual: null;
+  emergencyFundProgress: Partial<Record<Currency, ComputedGoalProgress>> | null;
+  budgetVsActual: Partial<Record<Currency, BudgetVsActualSummary>> | null;
   upcomingObligations: never[];
 };
 
 /**
- * Computes the complete Phase 3 dashboard summary for a given (year, month)
- * using the deterministic Step E calculation helpers.
+ * Computes the complete Phase 3–5 dashboard summary for a given (year, month)
+ * using the deterministic calculation helpers from lib/finance/*.
  */
 export async function getDashboardSummary(
   userId: string,
@@ -61,17 +67,41 @@ export async function getDashboardSummary(
   const { year, month, topCategoriesLimit = 5 } = params;
   const range = getMonthRange(year, month, "Africa/Nairobi");
 
-  const [accounts, transactions] = await Promise.all([
-    prisma.account.findMany({
-      where: { userId, isArchived: false },
-      orderBy: { createdAt: "asc" },
-    }),
-    prisma.transaction.findMany({
-      where: { userId, deletedAt: null },
-      include: { category: true },
-      orderBy: [{ date: "desc" }, { id: "desc" }],
-    }),
-  ]);
+  const [accounts, transactions, emergencyGoals, goalContributions, budgets] =
+    await Promise.all([
+      prisma.account.findMany({
+        where: { userId, isArchived: false },
+        orderBy: { createdAt: "asc" },
+      }),
+      prisma.transaction.findMany({
+        where: { userId, deletedAt: null },
+        include: { category: true },
+        orderBy: [{ date: "desc" }, { id: "desc" }],
+      }),
+      prisma.goal
+        ? prisma.goal.findMany({
+            where: { userId, isArchived: false, type: "EMERGENCY_FUND" },
+            orderBy: { createdAt: "asc" },
+          })
+        : Promise.resolve([]),
+      prisma.goalContribution
+        ? prisma.goalContribution.findMany({
+            where: { userId },
+            orderBy: { contributedAt: "asc" },
+          })
+        : Promise.resolve([]),
+      prisma.budget
+        ? prisma.budget.findMany({
+            where: { userId, year, month },
+            include: {
+              categories: {
+                include: { category: true },
+                orderBy: { allocated: "desc" },
+              },
+            },
+          })
+        : Promise.resolve([]),
+    ]);
 
   const txRows: CashflowTxRow[] = transactions.map((tx) => ({
     type: tx.type,
@@ -120,6 +150,7 @@ export async function getDashboardSummary(
   const endMs = range.end.getTime();
 
   const byCurrency = {} as Record<Currency, CurrencyDashboardTotals>;
+  const actualSpendingByCurrencyAndCat = new Map<Currency, Record<string, string>>();
 
   for (const currency of Array.from(activeCurrencies)) {
     let totalBalance = new Decimal(0);
@@ -160,6 +191,14 @@ export async function getDashboardSummary(
       }
     }
 
+    const catRecordForBudget: Record<string, string> = {};
+    catSpendingMap.forEach((v, k) => {
+      if (k !== null && v.total.gt(0)) {
+        catRecordForBudget[k] = formatAmount(v.total);
+      }
+    });
+    actualSpendingByCurrencyAndCat.set(currency, catRecordForBudget);
+
     const spendingByCategory: CategorySpendingItem[] = Array.from(
       catSpendingMap.entries()
     )
@@ -186,6 +225,65 @@ export async function getDashboardSummary(
     };
   }
 
+  // Phase 5: Emergency fund progress per currency
+  let emergencyFundProgress: Partial<Record<Currency, ComputedGoalProgress>> | null = null;
+  if (emergencyGoals.length > 0) {
+    emergencyFundProgress = {};
+    const contribRows: GoalContributionRow[] = goalContributions.map((c) => ({
+      goalId: c.goalId,
+      amount: String(c.amount),
+      currency: c.currency,
+      contributedAt: c.contributedAt,
+    }));
+
+    for (const g of emergencyGoals) {
+      if (!emergencyFundProgress[g.currency]) {
+        emergencyFundProgress[g.currency] = computeGoalProgress(
+          {
+            id: g.id,
+            name: g.name,
+            type: g.type,
+            targetAmount: String(g.targetAmount),
+            startingAmount: String(g.startingAmount ?? "0"),
+            currency: g.currency,
+            targetDate: g.targetDate,
+            createdAt: g.createdAt,
+          },
+          contribRows,
+          range.end
+        );
+      }
+    }
+  }
+
+  // Phase 4: Budget vs actual per currency
+  let budgetVsActual: Partial<Record<Currency, BudgetVsActualSummary>> | null = null;
+  if (budgets.length > 0) {
+    budgetVsActual = {};
+    for (const b of budgets) {
+      const actuals = actualSpendingByCurrencyAndCat.get(b.currency) ?? {};
+      budgetVsActual[b.currency] = computeBudgetVsActual(
+        {
+          id: b.id,
+          year: b.year,
+          month: b.month,
+          currency: b.currency,
+          expectedIncome: String(b.expectedIncome),
+          totalAllocated: String(b.totalAllocated),
+          savingsTarget: String(b.savingsTarget),
+          rationale: b.rationale,
+          categories: b.categories.map((bc) => ({
+            categoryId: bc.categoryId,
+            categoryName: bc.category.name,
+            allocated: String(bc.allocated),
+            isEssential: bc.isEssential,
+          })),
+        },
+        actuals
+      );
+    }
+  }
+
   const recentTransactions = transactions.slice(0, 5).map((tx) => ({
     id: tx.id,
     accountId: tx.accountId,
@@ -209,8 +307,8 @@ export async function getDashboardSummary(
     byCurrency,
     accounts: enrichedAccounts,
     recentTransactions,
-    emergencyFundProgress: null,
-    budgetVsActual: null,
+    emergencyFundProgress,
+    budgetVsActual,
     upcomingObligations: [],
   };
 }

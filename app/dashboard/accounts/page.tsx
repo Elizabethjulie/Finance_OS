@@ -8,10 +8,14 @@ import { AccountsClient } from "./AccountsClient";
 export default async function AccountsPage() {
   const userId = await requireUserId();
 
-  const user = await prisma.user.findUniqueOrThrow({
+  const user = await prisma.user.findUnique({
     where: { id: userId },
     select: { name: true, baseCurrency: true, onboardedAt: true },
   });
+
+  if (!user) {
+    redirect("/login");
+  }
 
   if (!user.onboardedAt) {
     redirect("/onboarding");

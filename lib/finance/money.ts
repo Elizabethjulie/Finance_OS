@@ -59,3 +59,38 @@ export function sum(values: ReadonlyArray<string | number | Decimal>): Decimal {
   }
   return total;
 }
+
+/**
+ * Returns the canonical display symbol for a given currency code.
+ */
+export function getCurrencySymbol(currency?: string | null): string {
+  switch (currency?.toUpperCase()) {
+    case "KES":
+      return "KSh ";
+    case "EUR":
+      return "€";
+    case "GBP":
+      return "£";
+    case "USD":
+    default:
+      return "$";
+  }
+}
+
+/**
+ * Formats a money value with its true currency symbol and thousand separators.
+ * e.g., 25000 in KES -> "KSh 25,000.00", 300 in EUR -> "€300.00"
+ */
+export function formatMoneyWithCurrency(
+  value: Decimal | string | number,
+  currency?: string | null
+): string {
+  const dec = toDecimal(value);
+  const [intPart, decPart = "00"] = dec.toFixed(2).split(".");
+  const sign = intPart.startsWith("-") ? "-" : "";
+  const digits = sign ? intPart.slice(1) : intPart;
+  const withCommas = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const symbol = getCurrencySymbol(currency);
+  return `${sign}${symbol}${withCommas}.${decPart}`;
+}
+

@@ -16,7 +16,9 @@ import {
   PlusIcon,
   LightbulbIcon,
 } from "@/components/ui/icons";
+import Decimal from "decimal.js";
 import type { Account, AccountType } from "@/lib/generated/prisma/client";
+import { formatAmount, toDecimal, getCurrencySymbol } from "@/lib/finance/money";
 import type { AccountWithBalance } from "@/services/account/balances";
 
 interface AccountsClientProps {
@@ -28,11 +30,29 @@ interface AccountsClientProps {
   accountBalances?: AccountWithBalance[];
 }
 
-function formatMoneyDisplay(value: number): string {
-  return value.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  });
+function formatMoneyDisplay(value: Decimal | string): string {
+  const [intPart, decPart = "00"] = formatAmount(toDecimal(value)).split(".");
+  const sign = intPart.startsWith("-") ? "-" : "";
+  const digits = sign ? intPart.slice(1) : intPart;
+  const withCommas = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${sign}${withCommas}.${decPart}`;
+}
+
+function renderCurrencyBreakdown(
+  items: Array<{ currency: string; balanceDecimal: Decimal }>,
+  fallbackCurrency: string
+): string {
+  const byCurr = new Map<string, Decimal>();
+  for (const it of items) {
+    const prev = byCurr.get(it.currency) ?? new Decimal(0);
+    byCurr.set(it.currency, prev.plus(it.balanceDecimal));
+  }
+  if (byCurr.size === 0) {
+    return `${getCurrencySymbol(fallbackCurrency)}0.00`;
+  }
+  return Array.from(byCurr.entries())
+    .map(([curr, total]) => `${getCurrencySymbol(curr)}${formatMoneyDisplay(total)}`)
+    .join(" + ");
 }
 
 export function AccountsClient({
@@ -45,15 +65,6 @@ export function AccountsClient({
   const [isSyncing, startSync] = useTransition();
   const [syncNotice, setSyncNotice] = useState<string | null>(null);
 
-  const currencySymbol =
-    user.baseCurrency === "KES"
-      ? "KSh"
-      : user.baseCurrency === "EUR"
-      ? "€"
-      : user.baseCurrency === "GBP"
-      ? "£"
-      : "$";
-
   // Map real user accounts with computed balances into groups
   const sourceAccounts: AccountWithBalance[] =
     accountBalances.length > 0
@@ -63,7 +74,7 @@ export function AccountsClient({
           name: a.name,
           type: a.type,
           currency: a.currency,
-          balance: Number(a.openingBalance ?? 0).toFixed(2),
+          balance: formatAmount(toDecimal(String(a.openingBalance ?? "0"))),
         }));
 
   const allBankData = sourceAccounts
@@ -71,12 +82,13 @@ export function AccountsClient({
     .map((a) => ({
       id: a.id,
       name: a.name,
+      currency: a.currency,
       badge: a.type === "SAVINGS" ? "Savings" : "Bank Account",
       subtext: `Account: •••• ${a.id.slice(-4)} • ${a.currency}`,
       status: "● Active account",
       balanceLabel: "Available balance",
-      balanceValue: Number(a.balance) || 0,
-      balance: formatMoneyDisplay(Number(a.balance) || 0),
+      balanceDecimal: toDecimal(a.balance),
+      balance: formatMoneyDisplay(a.balance),
       iconType: a.type === "SAVINGS" ? "piggy" : "bank",
     }));
 
@@ -85,11 +97,12 @@ export function AccountsClient({
     .map((a) => ({
       id: a.id,
       name: a.name,
+      currency: a.currency,
       subtext: `Mobile Wallet • ${a.currency}`,
       status: "● Active wallet",
       balanceLabel: "Wallet balance",
-      balanceValue: Number(a.balance) || 0,
-      balance: formatMoneyDisplay(Number(a.balance) || 0),
+      balanceDecimal: toDecimal(a.balance),
+      balance: formatMoneyDisplay(a.balance),
       iconType: "mobile",
     }));
 
@@ -98,12 +111,13 @@ export function AccountsClient({
     .map((a) => ({
       id: a.id,
       name: a.name,
+      currency: a.currency,
       badge: a.type === "MMF" ? "MMF" : "Investment",
       subtext: `Fund • ${a.currency}`,
       status: "● Active fund",
       balanceLabel: "Portfolio value",
-      balanceValue: Number(a.balance) || 0,
-      balance: formatMoneyDisplay(Number(a.balance) || 0),
+      balanceDecimal: toDecimal(a.balance),
+      balance: formatMoneyDisplay(a.balance),
     }));
 
   const allCashData = sourceAccounts
@@ -111,18 +125,13 @@ export function AccountsClient({
     .map((a) => ({
       id: a.id,
       name: a.name,
+      currency: a.currency,
       subtext: `Cash • ${a.currency}`,
       status: "● Active cash account",
       balanceLabel: "Counted cash",
-      balanceValue: Number(a.balance) || 0,
-      balance: formatMoneyDisplay(Number(a.balance) || 0),
+      balanceDecimal: toDecimal(a.balance),
+      balance: formatMoneyDisplay(a.balance),
     }));
-
-  const bankTotal = allBankData.reduce((sum, item) => sum + item.balanceValue, 0);
-  const mobileTotal = allMobileData.reduce((sum, item) => sum + item.balanceValue, 0);
-  const mmfTotal = allMmfData.reduce((sum, item) => sum + item.balanceValue, 0);
-  const cashTotal = allCashData.reduce((sum, item) => sum + item.balanceValue, 0);
-  const netAvailableTotal = bankTotal + mobileTotal + mmfTotal + cashTotal;
 
   function handleOpenAddGroup(type: AccountType) {
     setSelectedGroupType(type);
@@ -168,8 +177,10 @@ export function AccountsClient({
               <span className="w-2 h-2 rounded-full bg-emerald-500" />
               <span>Net Available:</span>
               <span className="text-slate-900">
-                {currencySymbol}
-                {formatMoneyDisplay(netAvailableTotal)}
+                {renderCurrencyBreakdown(
+                  sourceAccounts.map((a) => ({ currency: a.currency, balanceDecimal: toDecimal(a.balance) })),
+                  user.baseCurrency
+                )}
               </span>
               <span className="text-slate-400 font-normal">
                 across {sourceAccounts.length} {sourceAccounts.length === 1 ? "account" : "accounts"}
@@ -229,8 +240,7 @@ export function AccountsClient({
             <div className="text-xs sm:text-sm font-semibold text-slate-800">
               Total:{" "}
               <span className="font-bold">
-                {currencySymbol}
-                {formatMoneyDisplay(bankTotal)}
+                {renderCurrencyBreakdown(allBankData, user.baseCurrency)}
               </span>
             </div>
           </div>
@@ -278,7 +288,7 @@ export function AccountsClient({
                         {item.balanceLabel}
                       </div>
                       <div className="text-xl font-bold text-slate-900 tracking-tight">
-                        {currencySymbol}
+                        {getCurrencySymbol(item.currency)}
                         {item.balance}
                       </div>
                     </div>
@@ -317,8 +327,7 @@ export function AccountsClient({
             <div className="text-xs sm:text-sm font-semibold text-slate-800">
               Total:{" "}
               <span className="font-bold">
-                {currencySymbol}
-                {formatMoneyDisplay(mobileTotal)}
+                {renderCurrencyBreakdown(allMobileData, user.baseCurrency)}
               </span>
             </div>
           </div>
@@ -359,7 +368,7 @@ export function AccountsClient({
                         {item.balanceLabel}
                       </div>
                       <div className="text-xl font-bold text-slate-900 tracking-tight">
-                        {currencySymbol}
+                        {getCurrencySymbol(item.currency)}
                         {item.balance}
                       </div>
                     </div>
@@ -398,8 +407,7 @@ export function AccountsClient({
                 </div>
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-800">
-                {currencySymbol}
-                {formatMoneyDisplay(mmfTotal)}
+                {renderCurrencyBreakdown(allMmfData, user.baseCurrency)}
               </div>
             </div>
 
@@ -439,7 +447,7 @@ export function AccountsClient({
                         {item.balanceLabel}
                       </div>
                       <div className="text-xl font-bold text-slate-900 tracking-tight">
-                        {currencySymbol}
+                        {getCurrencySymbol(item.currency)}
                         {item.balance}
                       </div>
                     </div>
@@ -473,8 +481,7 @@ export function AccountsClient({
                 </div>
               </div>
               <div className="text-xs sm:text-sm font-bold text-slate-800">
-                {currencySymbol}
-                {formatMoneyDisplay(cashTotal)}
+                {renderCurrencyBreakdown(allCashData, user.baseCurrency)}
               </div>
             </div>
 
@@ -507,7 +514,7 @@ export function AccountsClient({
                         {item.balanceLabel}
                       </div>
                       <div className="text-xl font-bold text-slate-900 tracking-tight">
-                        {currencySymbol}
+                        {getCurrencySymbol(item.currency)}
                         {item.balance}
                       </div>
                     </div>

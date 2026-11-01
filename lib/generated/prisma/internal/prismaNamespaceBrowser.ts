@@ -55,7 +55,11 @@ export const ModelName = {
   IncomeSource: 'IncomeSource',
   Account: 'Account',
   Category: 'Category',
-  Transaction: 'Transaction'
+  Transaction: 'Transaction',
+  Goal: 'Goal',
+  GoalContribution: 'GoalContribution',
+  Budget: 'Budget',
+  BudgetCategory: 'BudgetCategory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -145,6 +149,67 @@ export const TransactionScalarFieldEnum = {
 } as const
 
 export type TransactionScalarFieldEnum = (typeof TransactionScalarFieldEnum)[keyof typeof TransactionScalarFieldEnum]
+
+
+export const GoalScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  name: 'name',
+  type: 'type',
+  targetAmount: 'targetAmount',
+  startingAmount: 'startingAmount',
+  currency: 'currency',
+  targetDate: 'targetDate',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type GoalScalarFieldEnum = (typeof GoalScalarFieldEnum)[keyof typeof GoalScalarFieldEnum]
+
+
+export const GoalContributionScalarFieldEnum = {
+  id: 'id',
+  goalId: 'goalId',
+  userId: 'userId',
+  transactionId: 'transactionId',
+  amount: 'amount',
+  currency: 'currency',
+  note: 'note',
+  contributedAt: 'contributedAt',
+  createdAt: 'createdAt'
+} as const
+
+export type GoalContributionScalarFieldEnum = (typeof GoalContributionScalarFieldEnum)[keyof typeof GoalContributionScalarFieldEnum]
+
+
+export const BudgetScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  year: 'year',
+  month: 'month',
+  currency: 'currency',
+  expectedIncome: 'expectedIncome',
+  totalAllocated: 'totalAllocated',
+  savingsTarget: 'savingsTarget',
+  rationale: 'rationale',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const BudgetCategoryScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  categoryId: 'categoryId',
+  allocated: 'allocated',
+  isEssential: 'isEssential',
+  note: 'note'
+} as const
+
+export type BudgetCategoryScalarFieldEnum = (typeof BudgetCategoryScalarFieldEnum)[keyof typeof BudgetCategoryScalarFieldEnum]
 
 
 export const SortOrder = {

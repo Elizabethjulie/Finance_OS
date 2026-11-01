@@ -37,10 +37,13 @@ model User {
   createdAt    DateTime  @default(now())
   updatedAt    DateTime  @updatedAt
 
-    incomeSources IncomeSource[]
-  accounts      Account[]
-  categories    Category[]
-  transactions  Transaction[]
+  incomeSources     IncomeSource[]
+  accounts          Account[]
+  categories        Category[]
+  transactions      Transaction[]
+  budgets           Budget[]
+  goals             Goal[]
+  goalContributions GoalContribution[]
 
   @@index([email])
 }
@@ -102,7 +105,8 @@ model Category {
   icon      String?
   isDefault Boolean  @default(false)
 
-  transactions Transaction[]
+  transactions     Transaction[]
+  budgetCategories BudgetCategory[]
 
   @@unique([userId, name])
   @@index([userId])
@@ -127,8 +131,89 @@ model Transaction {
   createdAt   DateTime        @default(now())
   deletedAt   DateTime?       // soft delete — see note below
 
+  goalContributions GoalContribution[]
+
   @@index([userId, date])
   @@index([userId, categoryId])
   @@index([accountId])
   @@index([transferAccountId])
+}
+
+enum GoalType {
+  EMERGENCY_FUND
+  SAVINGS
+  INVESTMENT
+  DEBT_PAYOFF
+  CUSTOM
+}
+
+model Goal {
+  id             String    @id @default(cuid())
+  userId         String
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name           String
+  type           GoalType  @default(SAVINGS)
+  targetAmount   Decimal   @db.Decimal(14, 2)
+  startingAmount Decimal   @default(0) @db.Decimal(14, 2)
+  currency       Currency
+  targetDate     DateTime
+  isArchived     Boolean   @default(false)
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  contributions GoalContribution[]
+
+  @@index([userId, isArchived])
+}
+
+model GoalContribution {
+  id            String       @id @default(cuid())
+  goalId        String
+  goal          Goal         @relation(fields: [goalId], references: [id], onDelete: Cascade)
+  userId        String
+  user          User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  transactionId String?
+  transaction   Transaction? @relation(fields: [transactionId], references: [id], onDelete: SetNull)
+  amount        Decimal      @db.Decimal(14, 2)
+  currency      Currency
+  note          String?
+  contributedAt DateTime     @default(now())
+  createdAt     DateTime     @default(now())
+
+  @@index([goalId])
+  @@index([userId])
+}
+
+model Budget {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  year           Int
+  month          Int
+  currency       Currency
+  expectedIncome Decimal  @db.Decimal(14, 2)
+  totalAllocated Decimal  @db.Decimal(14, 2)
+  savingsTarget  Decimal  @default(0) @db.Decimal(14, 2)
+  rationale      String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  categories BudgetCategory[]
+
+  @@unique([userId, year, month, currency])
+  @@index([userId, year, month])
+}
+
+model BudgetCategory {
+  id          String   @id @default(cuid())
+  budgetId    String
+  budget      Budget   @relation(fields: [budgetId], references: [id], onDelete: Cascade)
+  categoryId  String
+  category    Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  allocated   Decimal  @db.Decimal(14, 2)
+  isEssential Boolean  @default(false)
+  note        String?
+
+  @@unique([budgetId, categoryId])
+  @@index([budgetId])
 }

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { CloseIcon, CheckIcon } from "@/components/ui/icons";
 import { createTransactionAction } from "@/app/dashboard/actions";
 import type { Account } from "@/lib/generated/prisma/client";
+import { getCurrencySymbol } from "@/lib/finance/money";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -25,7 +26,7 @@ const EXPENSE_CATEGORIES = [
   { id: "food", name: "Food & Dining", icon: "🍽️" },
   { id: "housing", name: "Housing & Rent", icon: "🏠" },
   { id: "transport", name: "Transportation", icon: "🚗" },
-  { id: "utilities", name: "Utilities", icon: "⚡" },
+  { id: "utilities", name: "Investments & savings", icon: "⚡" },
   { id: "entertainment", name: "Entertainment", icon: "🍿" },
   { id: "shopping", name: "Shopping", icon: "🛍️" },
   { id: "health", name: "Health & Medical", icon: "🩺" },
@@ -88,14 +89,9 @@ export function AddTransactionModal({
       ? EXPENSE_CATEGORIES
       : TRANSFER_CATEGORIES;
 
-  const currencySymbol =
-    defaultCurrency === "KES"
-      ? "KSh"
-      : defaultCurrency === "EUR"
-      ? "€"
-      : defaultCurrency === "GBP"
-      ? "£"
-      : "$";
+  const selectedAccount = accounts.find((a) => a.id === accountId);
+  const activeCurrency = selectedAccount?.currency ?? defaultCurrency;
+  const currencySymbol = getCurrencySymbol(activeCurrency);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -130,7 +126,7 @@ export function AddTransactionModal({
         transferAccountId: activeType === "TRANSFER" ? transferAccountId : undefined,
         type: activeType,
         amount: Number(amount).toFixed(2),
-        currency: defaultCurrency as "USD" | "KES" | "EUR" | "GBP",
+        currency: activeCurrency as "USD" | "KES" | "EUR" | "GBP",
         description: description.trim() || `${activeType} - ${selectedCategory}`,
         notes: notes.trim(),
         date: new Date(date).toISOString(),

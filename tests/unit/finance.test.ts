@@ -1,6 +1,6 @@
 import Decimal from "decimal.js";
 import { describe, expect, it } from "vitest";
-import { formatAmount, sum, toDecimal } from "@/lib/finance/money";
+import { formatAmount, formatMoneyWithCurrency, getCurrencySymbol, sum, toDecimal } from "@/lib/finance/money";
 import {
   computeAccountBalance,
   computeBalancesForAccounts,
@@ -25,6 +25,17 @@ describe("lib/finance/money", () => {
     expect(() => toDecimal(Number.POSITIVE_INFINITY)).toThrow();
     expect(() => toDecimal("")).toThrow();
     expect(() => toDecimal("not-a-number")).toThrow();
+  });
+
+  it("formats money with appropriate currency symbols", () => {
+    expect(getCurrencySymbol("KES")).toBe("KSh ");
+    expect(getCurrencySymbol("EUR")).toBe("€");
+    expect(getCurrencySymbol("USD")).toBe("$");
+    expect(getCurrencySymbol("GBP")).toBe("£");
+
+    expect(formatMoneyWithCurrency("25000", "KES")).toBe("KSh 25,000.00");
+    expect(formatMoneyWithCurrency(1000, "EUR")).toBe("€1,000.00");
+    expect(formatMoneyWithCurrency("-50.5", "USD")).toBe("-$50.50");
   });
 });
 

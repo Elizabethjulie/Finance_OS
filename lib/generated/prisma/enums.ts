@@ -54,3 +54,14 @@ export const TransactionType = {
 } as const
 
 export type TransactionType = (typeof TransactionType)[keyof typeof TransactionType]
+
+
+export const GoalType = {
+  EMERGENCY_FUND: 'EMERGENCY_FUND',
+  SAVINGS: 'SAVINGS',
+  INVESTMENT: 'INVESTMENT',
+  DEBT_PAYOFF: 'DEBT_PAYOFF',
+  CUSTOM: 'CUSTOM'
+} as const
+
+export type GoalType = (typeof GoalType)[keyof typeof GoalType]

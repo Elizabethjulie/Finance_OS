@@ -15,8 +15,19 @@ import {
   EmptyIllustration,
   PlusIcon,
 } from "@/components/ui/icons";
-import type { IncomeSource, Account, Transaction } from "@/lib/generated/prisma/client";
+import Decimal from "decimal.js";
+import type { Currency, IncomeSource, Account, Transaction } from "@/lib/generated/prisma/client";
+import { formatAmount, toDecimal, formatMoneyWithCurrency, getCurrencySymbol } from "@/lib/finance/money";
 import type { AccountWithBalance } from "@/services/account/balances";
+import type { DashboardSummaryResult } from "@/services/dashboard/summary";
+
+function formatWithCommas(amountStr: string): string {
+  const [intPart, decPart = "00"] = formatAmount(toDecimal(amountStr)).split(".");
+  const sign = intPart.startsWith("-") ? "-" : "";
+  const digits = sign ? intPart.slice(1) : intPart;
+  const withCommas = digits.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${sign}${withCommas}.${decPart}`;
+}
 
 interface DashboardClientProps {
   user: {
@@ -26,6 +37,7 @@ interface DashboardClientProps {
   incomeSources: IncomeSource[];
   accounts: Account[];
   accountBalances?: AccountWithBalance[];
+  dashboardSummary?: DashboardSummaryResult;
   transactions: (Transaction & { account?: Account | null; transferAccount?: Account | null })[];
 }
 
@@ -34,81 +46,85 @@ export function DashboardClient({
   incomeSources,
   accounts,
   accountBalances = [],
+  dashboardSummary,
   transactions,
 }: DashboardClientProps) {
   const [isAddTransactionOpen, setIsAddTransactionOpen] = useState(false);
 
-  const currencySymbol =
-    user.baseCurrency === "KES"
-      ? "KSh"
-      : user.baseCurrency === "EUR"
-      ? "€"
-      : user.baseCurrency === "GBP"
-      ? "£"
-      : "$";
+  const currencySymbol = getCurrencySymbol(user.baseCurrency);
 
-  // Calculate monthly income total from user's real income sources
-  const monthlyTotalNumber = incomeSources.reduce((acc, src) => {
-    const val = Number(src.amount) || 0;
+  // Calculate monthly income total from user's real income sources using Decimal
+  const monthlyTotalDecimal = incomeSources.reduce((acc, src) => {
+    const val = toDecimal(String(src.amount ?? "0"));
     const freq = (src.frequency || "MONTHLY").toUpperCase();
-    if (freq === "WEEKLY" || freq === "WEEEKLY") return acc + val * 4.33;
-    if (freq === "BIWEEKLY") return acc + val * 2.167;
-    if (freq === "QUARTERLY") return acc + val / 3;
-    if (freq === "ANNUALLY") return acc + val / 12;
-    return acc + val;
-  }, 0);
+    if (freq === "WEEKLY" || freq === "WEEEKLY") return acc.plus(val.mul("4.33"));
+    if (freq === "BIWEEKLY") return acc.plus(val.mul("2.167"));
+    if (freq === "QUARTERLY") return acc.plus(val.div(3));
+    if (freq === "ANNUALLY") return acc.plus(val.div(12));
+    return acc.plus(val);
+  }, new Decimal(0));
 
-  const formattedMonthlyTotal = `${currencySymbol}${monthlyTotalNumber.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formattedMonthlyTotal = `${currencySymbol}${formatWithCommas(formatAmount(monthlyTotalDecimal))}`;
 
   const displaySources = incomeSources;
 
-  // Net worth calculation from real account balances (openingBalance + transactions)
-  const totalNetWorthNumber =
-    accountBalances.length > 0
-      ? accountBalances.reduce((acc, acct) => acc + (Number(acct.balance) || 0), 0)
-      : transactions.reduce((acc, tx) => {
-          const val = Number(tx.amount) || 0;
-          if (tx.type === "INCOME") return acc + val;
-          if (tx.type === "EXPENSE") return acc - val;
+  const baseCurr = user.baseCurrency as Currency;
+  const currencySummary = dashboardSummary?.byCurrency?.[baseCurr];
+  const currentBudget = dashboardSummary?.budgetVsActual?.[baseCurr];
+  const budgetAllocatedNum = Number(currentBudget?.totalAllocated || "0");
+  const budgetActualNum = Number(currentBudget?.totalActualSpending || "0");
+  const budgetPercentUsed = budgetAllocatedNum > 0
+    ? Math.min(100, (budgetActualNum / budgetAllocatedNum) * 100)
+    : 0;
+
+  // Net worth / current balance in baseCurrency from Phase 3 summary or accountBalances
+  const totalNetWorthDecimal = currencySummary
+    ? toDecimal(currencySummary.currentBalance)
+    : accountBalances.length > 0
+    ? accountBalances
+        .filter((acct) => acct.currency === baseCurr)
+        .reduce((acc, acct) => acc.plus(toDecimal(acct.balance)), new Decimal(0))
+    : transactions
+        .filter((tx) => tx.currency === baseCurr)
+        .reduce((acc, tx) => {
+          const val = toDecimal(String(tx.amount));
+          if (tx.type === "INCOME") return acc.plus(val);
+          if (tx.type === "EXPENSE") return acc.minus(val);
           return acc;
-        }, 0);
+        }, new Decimal(0));
 
-  const formattedNetWorth = `${currencySymbol}${totalNetWorthNumber.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formattedNetWorth = `${currencySymbol}${formatWithCommas(formatAmount(totalNetWorthDecimal))}`;
 
-  // Monthly cash flow from real transactions
-  const netCashFlowNumber = transactions.reduce((acc, tx) => {
-    const val = Number(tx.amount) || 0;
-    if (tx.type === "INCOME") return acc + val;
-    if (tx.type === "EXPENSE") return acc - val;
-    return acc;
-  }, 0);
+  // Monthly cash flow from Phase 3 summary or transactions
+  const netCashFlowDecimal = currencySummary
+    ? toDecimal(currencySummary.netCashFlow)
+    : transactions
+        .filter((tx) => tx.currency === baseCurr)
+        .reduce((acc, tx) => {
+          const val = toDecimal(String(tx.amount));
+          if (tx.type === "INCOME") return acc.plus(val);
+          if (tx.type === "EXPENSE") return acc.minus(val);
+          return acc;
+        }, new Decimal(0));
 
   const formattedCashFlow =
-    transactions.length > 0
-      ? `${netCashFlowNumber >= 0 ? "+" : ""}${currencySymbol}${netCashFlowNumber.toLocaleString(undefined, {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })}`
+    transactions.length > 0 || currencySummary
+      ? `${netCashFlowDecimal.gte(0) && !netCashFlowDecimal.isZero() ? "+" : ""}${currencySymbol}${formatWithCommas(
+          formatAmount(netCashFlowDecimal)
+        )}`
       : `${currencySymbol}0.00`;
 
-  // Real savings & investment total across SAVINGS, MMF, INVESTMENT accounts
+  // Real savings & investment total across SAVINGS, MMF, INVESTMENT accounts in baseCurrency
   const savingsAccounts = accountBalances.filter(
-    (a) => a.type === "SAVINGS" || a.type === "MMF" || a.type === "INVESTMENT"
+    (a) =>
+      a.currency === baseCurr &&
+      (a.type === "SAVINGS" || a.type === "MMF" || a.type === "INVESTMENT")
   );
-  const totalSavingsNumber = savingsAccounts.reduce(
-    (acc, a) => acc + (Number(a.balance) || 0),
-    0
+  const totalSavingsDecimal = savingsAccounts.reduce(
+    (acc, a) => acc.plus(toDecimal(a.balance)),
+    new Decimal(0)
   );
-  const formattedSavingsTotal = `${currencySymbol}${totalSavingsNumber.toLocaleString(undefined, {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  })}`;
+  const formattedSavingsTotal = `${currencySymbol}${formatWithCommas(formatAmount(totalSavingsDecimal))}`;
 
   // Format today's date
   const todayFormatted = new Intl.DateTimeFormat("en-US", {
@@ -226,6 +242,91 @@ export function DashboardClient({
           </div>
         </div>
 
+        {/* Monthly Budget & Spending Envelopes Banner */}
+        {currentBudget ? (
+          <div className="bg-white rounded-2xl border border-[#E5EBE8] p-5 sm:p-6 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-sm transition-shadow">
+            <div className="space-y-2.5 flex-1 max-w-2xl">
+              <div className="flex items-center gap-2">
+                <div className="w-7 h-7 rounded-lg bg-[#E8F5F1] text-[#0F5147] flex items-center justify-center">
+                  <TargetIcon className="w-4 h-4" />
+                </div>
+                <span className="text-xs font-bold text-slate-900 tracking-wider uppercase">
+                  Monthly Budget Envelopes
+                </span>
+                {budgetActualNum > budgetAllocatedNum && (
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+                    Over Budget
+                  </span>
+                )}
+              </div>
+
+              <div className="flex items-baseline gap-2">
+                <span className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                  {currencySymbol}
+                  {formatWithCommas(currentBudget.totalActualSpending)}
+                </span>
+                <span className="text-xs text-slate-400">
+                  spent of {currencySymbol}
+                  {formatWithCommas(currentBudget.totalAllocated)} allocated
+                </span>
+              </div>
+
+              {/* Progress bar */}
+              <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    budgetActualNum > budgetAllocatedNum
+                      ? "bg-rose-500"
+                      : budgetPercentUsed >= 80
+                      ? "bg-amber-400"
+                      : "bg-[#0F5147]"
+                  }`}
+                  style={{ width: `${budgetPercentUsed}%` }}
+                />
+              </div>
+
+              <div className="flex items-center justify-between text-[11px] text-slate-400">
+                <span>{budgetPercentUsed.toFixed(0)}% envelope utilized</span>
+                <span>
+                  {Number(currentBudget.totalRemaining) >= 0 ? "+" : ""}
+                  {currencySymbol}
+                  {formatWithCommas(currentBudget.totalRemaining)} remaining cushion
+                </span>
+              </div>
+            </div>
+
+            <Link
+              href="/dashboard/budgets"
+              className="inline-flex items-center gap-1.5 self-start md:self-auto bg-[#E8F5F1] hover:bg-[#D5EFE7] text-[#0F5147] px-4 py-2 rounded-full text-xs font-semibold transition-colors"
+            >
+              <span>Manage Envelopes →</span>
+            </Link>
+          </div>
+        ) : (
+          <div className="rounded-2xl bg-white border border-[#E5EBE8] p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-xs">
+            <div className="flex items-center gap-3">
+              <div className="w-9 h-9 rounded-xl bg-[#E8F5F1] text-[#0F5147] flex items-center justify-center shrink-0">
+                <TargetIcon className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-xs sm:text-sm font-bold text-slate-900">
+                  Goal-Based Budget Plan
+                </h4>
+                <p className="text-xs text-slate-500">
+                  You haven&apos;t generated a budget for this month yet. Finance OS can automatically allocate essentials and goal targets.
+                </p>
+              </div>
+            </div>
+
+            <Link
+              href="/dashboard/budgets"
+              className="self-end sm:self-auto bg-[#0F5147] hover:bg-[#0C433A] text-white px-4 py-2 rounded-full text-xs font-semibold shadow-xs transition-all hover:shadow-md cursor-pointer whitespace-nowrap"
+            >
+              Generate Budget →
+            </Link>
+          </div>
+        )}
+
         {/* Lower Main Two Columns */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Recurring Income Baseline */}
@@ -251,7 +352,6 @@ export function DashboardClient({
                 <div className="space-y-4">
                   {displaySources.map((source, index) => {
                     const isFirst = index === 0;
-                    const amt = Number(source.amount) || 0;
                     const freqText =
                       source.frequency?.toLowerCase() === "biweekly"
                         ? "/ bi-weekly"
@@ -290,11 +390,7 @@ export function DashboardClient({
                         </div>
 
                         <div className="text-sm font-bold text-[#0F5147]">
-                          +{currencySymbol}
-                          {amt.toLocaleString(undefined, {
-                            minimumFractionDigits: 2,
-                            maximumFractionDigits: 2,
-                          })}
+                          +{formatMoneyWithCurrency(String(source.amount ?? "0"), source.currency)}
                         </div>
                       </div>
                     );
@@ -400,8 +496,7 @@ export function DashboardClient({
                         }`}
                       >
                         {tx.type === "INCOME" ? "+" : tx.type === "TRANSFER" ? "↔ " : "-"}
-                        {currencySymbol}
-                        {Number(tx.amount).toFixed(2)}
+                        {formatMoneyWithCurrency(String(tx.amount), tx.currency)}
                       </div>
                     </div>
                   ))}

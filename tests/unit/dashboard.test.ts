@@ -1,8 +1,17 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
-const { mockAccountFindMany, mockTransactionFindMany } = vi.hoisted(() => ({
+const {
+  mockAccountFindMany,
+  mockTransactionFindMany,
+  mockGoalFindMany,
+  mockGoalContribFindMany,
+  mockBudgetFindMany,
+} = vi.hoisted(() => ({
   mockAccountFindMany: vi.fn(),
   mockTransactionFindMany: vi.fn(),
+  mockGoalFindMany: vi.fn(),
+  mockGoalContribFindMany: vi.fn(),
+  mockBudgetFindMany: vi.fn(),
 }));
 
 vi.mock("@/lib/db/prisma", () => ({
@@ -13,6 +22,15 @@ vi.mock("@/lib/db/prisma", () => ({
     transaction: {
       findMany: mockTransactionFindMany,
     },
+    goal: {
+      findMany: mockGoalFindMany,
+    },
+    goalContribution: {
+      findMany: mockGoalContribFindMany,
+    },
+    budget: {
+      findMany: mockBudgetFindMany,
+    },
   },
 }));
 
@@ -22,6 +40,9 @@ describe("getDashboardSummary service", () => {
   beforeEach(() => {
     mockAccountFindMany.mockReset();
     mockTransactionFindMany.mockReset();
+    mockGoalFindMany.mockReset().mockResolvedValue([]);
+    mockGoalContribFindMany.mockReset().mockResolvedValue([]);
+    mockBudgetFindMany.mockReset().mockResolvedValue([]);
   });
 
   it("handles an empty user with no accounts and no transactions", async () => {
@@ -185,6 +206,87 @@ describe("getDashboardSummary service", () => {
 
     expect(summary.byCurrency.KES.currentBalance).toBe("2000.00");
     expect(summary.byCurrency.USD.currentBalance).toBe("300.00");
+  });
+
+  it("populates emergencyFundProgress (Phase 5) and budgetVsActual (Phase 4) when present", async () => {
+    mockAccountFindMany.mockResolvedValueOnce([
+      {
+        id: "acc_kes",
+        userId: "user_1",
+        name: "M-Pesa",
+        type: "MOBILE_MONEY",
+        currency: "KES",
+        openingBalance: "50000.00",
+        isArchived: false,
+      },
+    ]);
+    mockTransactionFindMany.mockResolvedValueOnce([
+      {
+        id: "tx_food",
+        userId: "user_1",
+        accountId: "acc_kes",
+        transferAccountId: null,
+        categoryId: "cat_food",
+        category: { id: "cat_food", name: "Food" },
+        type: "EXPENSE",
+        amount: "8000.00",
+        currency: "KES",
+        description: "Groceries",
+        date: new Date("2026-10-12T10:00:00Z"),
+        deletedAt: null,
+      },
+    ]);
+    mockGoalFindMany.mockResolvedValueOnce([
+      {
+        id: "goal_ef",
+        userId: "user_1",
+        name: "6-Month Emergency Fund",
+        type: "EMERGENCY_FUND",
+        targetAmount: "100000.00",
+        startingAmount: "20000.00",
+        currency: "KES",
+        targetDate: new Date("2027-04-01T00:00:00Z"),
+        createdAt: new Date("2026-10-01T00:00:00Z"),
+        isArchived: false,
+      },
+    ]);
+    mockGoalContribFindMany.mockResolvedValueOnce([
+      {
+        goalId: "goal_ef",
+        amount: "5000.00",
+        currency: "KES",
+        contributedAt: new Date("2026-10-10T00:00:00Z"),
+      },
+    ]);
+    mockBudgetFindMany.mockResolvedValueOnce([
+      {
+        id: "bud_oct",
+        userId: "user_1",
+        year: 2026,
+        month: 10,
+        currency: "KES",
+        expectedIncome: "80000.00",
+        totalAllocated: "20000.00",
+        savingsTarget: "5000.00",
+        rationale: "Goal-based allocation",
+        categories: [
+          {
+            categoryId: "cat_food",
+            category: { id: "cat_food", name: "Food" },
+            allocated: "15000.00",
+            isEssential: true,
+          },
+        ],
+      },
+    ]);
+
+    const summary = await getDashboardSummary("user_1", { year: 2026, month: 10 });
+
+    expect(summary.emergencyFundProgress?.KES?.currentAmount).toBe("25000.00");
+    expect(summary.emergencyFundProgress?.KES?.percentComplete).toBe("25.00");
+    expect(summary.budgetVsActual?.KES?.totalAllocated).toBe("20000.00");
+    expect(summary.budgetVsActual?.KES?.totalActualSpending).toBe("8000.00");
+    expect(summary.budgetVsActual?.KES?.totalRemaining).toBe("12000.00");
   });
 });
 
