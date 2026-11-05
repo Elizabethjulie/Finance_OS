@@ -15,6 +15,7 @@ import {
   CheckIcon,
   LightbulbIcon,
 } from "@/components/ui/icons";
+import { LuChevronLeft, LuChevronRight, LuX } from "react-icons/lu";
 import type { Account, Category } from "@/lib/generated/prisma/client";
 import type { BudgetVsActualSummary } from "@/lib/finance/budget";
 import { getCurrencySymbol } from "@/lib/finance/money";
@@ -205,10 +206,10 @@ export function BudgetsClient({
               <button
                 type="button"
                 onClick={handlePrevMonth}
-                className="px-3 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
                 aria-label="Previous month"
               >
-                ←
+                <LuChevronLeft className="w-3.5 h-3.5" />
               </button>
               <div className="px-3 py-1 text-xs font-bold text-slate-900 flex items-center gap-1.5">
                 <CalendarIcon className="w-3.5 h-3.5 text-slate-400" />
@@ -219,10 +220,10 @@ export function BudgetsClient({
               <button
                 type="button"
                 onClick={handleNextMonth}
-                className="px-3 py-1 rounded-full text-xs font-semibold text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
+                className="p-1.5 rounded-full text-slate-600 hover:text-slate-900 hover:bg-slate-50 transition-colors cursor-pointer"
                 aria-label="Next month"
               >
-                →
+                <LuChevronRight className="w-3.5 h-3.5" />
               </button>
             </div>
 
@@ -261,9 +262,10 @@ export function BudgetsClient({
             <button
               type="button"
               onClick={() => setFeedbackNotice(null)}
-              className="text-slate-400 hover:text-slate-700 font-bold ml-4"
+              className="text-slate-400 hover:text-slate-700 p-0.5 rounded ml-4 transition-colors"
+              aria-label="Dismiss notice"
             >
-              ✕
+              <LuX className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

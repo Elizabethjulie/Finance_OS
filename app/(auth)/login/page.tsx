@@ -15,6 +15,7 @@ import {
   AppleIcon,
   ShieldIcon,
 } from "@/components/ui/icons";
+import { LuLock, LuCheck, LuSparkles, LuArrowRight } from "react-icons/lu";
 
 const initialState: LoginFormState = {};
 
@@ -37,7 +38,7 @@ function LoginContent() {
 
         <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <span>Encrypted Workspace</span>
-          <span className="text-slate-400">🔒</span>
+          <LuLock className="w-3.5 h-3.5 text-slate-400" />
         </div>
       </header>
 
@@ -47,10 +48,13 @@ function LoginContent() {
           {/* Top Banner Alert (shown only right after signup) */}
           {justCreatedAccount && (
             <div className="mb-6 rounded-xl bg-[#FEF9EE] border border-[#FDE68A] p-2.5 flex items-center gap-2 text-xs text-amber-900">
-              <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold text-[10px]">
-                ✓
+              <span className="w-4 h-4 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center">
+                <LuCheck className="w-2.5 h-2.5" />
               </span>
-              <span>🎉 Your account was created! Log in to get started</span>
+              <span className="inline-flex items-center gap-1.5">
+                <LuSparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>Your account was created! Log in to get started</span>
+              </span>
             </div>
           )}
 
@@ -171,7 +175,7 @@ function LoginContent() {
               className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-[#0F5147] hover:bg-[#0C433A] text-white py-3 rounded-xl text-sm font-semibold shadow-xs transition-all hover:shadow-md cursor-pointer"
             >
               <span>Sign in to Finance OS</span>
-              <span>→</span>
+              <LuArrowRight className="w-4 h-4" />
             </button>
           </form>
 

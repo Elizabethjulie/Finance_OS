@@ -5,6 +5,24 @@ import { CloseIcon, CheckIcon } from "@/components/ui/icons";
 import { createTransactionAction } from "@/app/dashboard/actions";
 import type { Account } from "@/lib/generated/prisma/client";
 import { getCurrencySymbol } from "@/lib/finance/money";
+import {
+  LuBriefcase,
+  LuCreditCard,
+  LuGift,
+  LuTrendingUp,
+  LuChartBar,
+  LuUtensils,
+  LuHouse,
+  LuCar,
+  LuZap,
+  LuFilm,
+  LuShoppingBag,
+  LuHeartPulse,
+  LuFileText,
+  LuArrowLeftRight,
+  LuLandmark,
+  LuSprout,
+} from "react-icons/lu";
 
 interface AddTransactionModalProps {
   isOpen: boolean;
@@ -15,28 +33,28 @@ interface AddTransactionModalProps {
 }
 
 const INCOME_CATEGORIES = [
-  { id: "freelance", name: "Freelance Income", icon: "💼" },
-  { id: "salary", name: "Salary & Wages", icon: "💳" },
-  { id: "gift", name: "Gift", icon: "🎁" },
-  { id: "investment", name: "Investments & Dividends", icon: "📈" },
-  { id: "other_income", name: "Other Income", icon: "📊" },
+  { id: "freelance", name: "Freelance Income", Icon: LuBriefcase },
+  { id: "salary", name: "Salary & Wages", Icon: LuCreditCard },
+  { id: "gift", name: "Gift", Icon: LuGift },
+  { id: "investment", name: "Investments & Dividends", Icon: LuTrendingUp },
+  { id: "other_income", name: "Other Income", Icon: LuChartBar },
 ];
 
 const EXPENSE_CATEGORIES = [
-  { id: "food", name: "Food & Dining", icon: "🍽️" },
-  { id: "housing", name: "Housing & Rent", icon: "🏠" },
-  { id: "transport", name: "Transportation", icon: "🚗" },
-  { id: "utilities", name: "Investments & savings", icon: "⚡" },
-  { id: "entertainment", name: "Entertainment", icon: "🍿" },
-  { id: "shopping", name: "Shopping", icon: "🛍️" },
-  { id: "health", name: "Health & Medical", icon: "🩺" },
-  { id: "other_expense", name: "Other Expense", icon: "📝" },
+  { id: "food", name: "Food & Dining", Icon: LuUtensils },
+  { id: "housing", name: "Housing & Rent", Icon: LuHouse },
+  { id: "transport", name: "Transportation", Icon: LuCar },
+  { id: "utilities", name: "Investments & savings", Icon: LuZap },
+  { id: "entertainment", name: "Entertainment", Icon: LuFilm },
+  { id: "shopping", name: "Shopping", Icon: LuShoppingBag },
+  { id: "health", name: "Health & Medical", Icon: LuHeartPulse },
+  { id: "other_expense", name: "Other Expense", Icon: LuFileText },
 ];
 
 const TRANSFER_CATEGORIES = [
-  { id: "transfer_bank", name: "Bank Transfer", icon: "🔄" },
-  { id: "savings", name: "Savings Transfer", icon: "🏦" },
-  { id: "investment_transfer", name: "Investment Transfer", icon: "🌱" },
+  { id: "transfer_bank", name: "Bank Transfer", Icon: LuArrowLeftRight },
+  { id: "savings", name: "Savings Transfer", Icon: LuLandmark },
+  { id: "investment_transfer", name: "Investment Transfer", Icon: LuSprout },
 ];
 
 export function AddTransactionModal({
@@ -298,7 +316,7 @@ export function AddTransactionModal({
                         : "bg-slate-100 text-slate-600 hover:bg-slate-200/80 border border-transparent"
                     }`}
                   >
-                    <span>{cat.icon}</span>
+                    <cat.Icon className="w-3.5 h-3.5 shrink-0" />
                     <span>{cat.name}</span>
                     {isSelected && <CheckIcon className="w-3.5 h-3.5 ml-0.5 text-[#0F5147]" />}
                   </button>
@@ -338,7 +356,7 @@ export function AddTransactionModal({
 
           {/* Clarity tip callout */}
           <div className="rounded-xl bg-[#F0F9F6] border border-[#D5EFE7] p-2.5 flex items-center gap-2 text-xs text-[#0F5147]">
-            <span className="text-base">🌱</span>
+            <LuSprout className="w-4 h-4 text-[#0F5147] shrink-0" />
             <span>Logging consistently gives you clarity without the stress.</span>
           </div>
 

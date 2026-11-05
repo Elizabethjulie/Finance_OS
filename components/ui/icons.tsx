@@ -287,6 +287,8 @@ export function AppleIcon({ className = "w-4 h-4" }: { className?: string }) {
   );
 }
 
+import { LuSparkles, LuZap } from "react-icons/lu";
+
 export function EmptyIllustration({ className = "w-24 h-24" }: { className?: string }) {
   return (
     <div className={`relative flex items-center justify-center ${className}`}>
@@ -299,11 +301,11 @@ export function EmptyIllustration({ className = "w-24 h-24" }: { className?: str
           <path d="M23 20v6M20 23h6" stroke="white" strokeWidth="1.8" strokeLinecap="round" />
         </svg>
       </div>
-      <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FDE68A] flex items-center justify-center text-amber-600 text-xs shadow-xs">
-        ✨
+      <div className="absolute -top-1.5 -right-1.5 w-6 h-6 rounded-full bg-[#FEF3C7] border border-[#FDE68A] flex items-center justify-center text-amber-600 shadow-xs">
+        <LuSparkles className="w-3 h-3 text-amber-600" />
       </div>
-      <div className="absolute -bottom-1 -left-1.5 w-6 h-6 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] flex items-center justify-center text-sky-600 text-xs shadow-xs">
-        ⚡
+      <div className="absolute -bottom-1 -left-1.5 w-6 h-6 rounded-full bg-[#E0F2FE] border border-[#BAE6FD] flex items-center justify-center text-sky-600 shadow-xs">
+        <LuZap className="w-3 h-3 text-sky-600" />
       </div>
     </div>
   );

@@ -61,7 +61,7 @@ describe("Category service", () => {
 
   it("listCategories merges shared defaults and user custom categories sorted by name", async () => {
     const mockedList = [
-      { id: "c1", name: "Coffee", userId: "user_1", isDefault: false, icon: "☕" },
+      { id: "c1", name: "Coffee", userId: "user_1", isDefault: false, icon: "coffee" },
       { id: "c2", name: "Food", userId: null, isDefault: true, icon: null },
     ];
     mockCategoryFindMany.mockResolvedValueOnce(mockedList);
@@ -83,11 +83,11 @@ describe("Category service", () => {
       id: "cat_custom",
       userId: "user_1",
       name: "Pet Care",
-      icon: "🐾",
+      icon: "paw",
       isDefault: false,
     });
 
-    const created = await createCategory("user_1", { name: "Pet Care", icon: "🐾" });
+    const created = await createCategory("user_1", { name: "Pet Care", icon: "paw" });
 
     expect(mockCategoryFindFirst).toHaveBeenCalledWith({
       where: {

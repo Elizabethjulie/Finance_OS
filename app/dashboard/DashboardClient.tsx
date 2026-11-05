@@ -15,6 +15,7 @@ import {
   EmptyIllustration,
   PlusIcon,
 } from "@/components/ui/icons";
+import { LuDownload, LuSparkles, LuLightbulb } from "react-icons/lu";
 import Decimal from "decimal.js";
 import type { Currency, IncomeSource, Account, Transaction } from "@/lib/generated/prisma/client";
 import { formatAmount, toDecimal, formatMoneyWithCurrency, getCurrencySymbol } from "@/lib/finance/money";
@@ -148,7 +149,7 @@ export function DashboardClient({
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-slate-900 flex items-center gap-2">
-              Good morning, {user.name.split(" ")[0] || "there"} <span className="text-2xl">👋</span>
+              Good morning, {user.name.split(" ")[0] || "there"}
             </h1>
             <p className="text-sm text-slate-500 mt-1">
               Here is your fresh financial workspace. Everything is calm and up to date.
@@ -447,14 +448,14 @@ export function DashboardClient({
                     onClick={() => setIsAddTransactionOpen(true)}
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 transition-colors"
                   >
-                    <span>📥</span>
+                    <LuDownload className="w-3.5 h-3.5 text-slate-500" />
                     <span>Import CSV from your bank</span>
                   </button>
                   <Link
                     href="/dashboard/accounts"
                     className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-medium text-slate-600 bg-slate-50 hover:bg-slate-100 border border-slate-200/60 transition-colors"
                   >
-                    <span>✨</span>
+                    <LuSparkles className="w-3.5 h-3.5 text-amber-500" />
                     <span>Explore sample insights</span>
                   </Link>
                 </div>
@@ -509,7 +510,7 @@ export function DashboardClient({
         {/* Bottom Helpful Tip Bar */}
         <div className="rounded-xl bg-[#FEF9EE] border border-[#FDE68A] px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-amber-900">
           <div className="flex items-center gap-2">
-            <span className="text-base text-amber-600">💡</span>
+            <LuLightbulb className="w-4 h-4 text-amber-600 shrink-0" />
             <span>
               <strong>Helpful Tip:</strong> Finance OS safeguards your privacy with on-device
               encryption and bank-grade privacy standards.

@@ -13,14 +13,14 @@ interface AddAccountModalProps {
   defaultCurrency?: string;
 }
 
-const ACCOUNT_TYPES: { id: AccountType; label: string; icon: string }[] = [
-  { id: "BANK", label: "Bank Account", icon: "🏦" },
-  { id: "SAVINGS", label: "Savings Account", icon: "🐖" },
-  { id: "MOBILE_MONEY", label: "Mobile Money / Digital Wallet", icon: "📱" },
-  { id: "MMF", label: "Money Market Fund (MMF)", icon: "📈" },
-  { id: "CASH", label: "Physical Cash", icon: "💵" },
-  { id: "INVESTMENT", label: "Investments & Stocks", icon: "🌱" },
-  { id: "OTHER", label: "Other Account", icon: "💳" },
+const ACCOUNT_TYPES: { id: AccountType; label: string }[] = [
+  { id: "BANK", label: "Bank Account" },
+  { id: "SAVINGS", label: "Savings Account" },
+  { id: "MOBILE_MONEY", label: "Mobile Money / Digital Wallet" },
+  { id: "MMF", label: "Money Market Fund (MMF)" },
+  { id: "CASH", label: "Physical Cash" },
+  { id: "INVESTMENT", label: "Investments & Stocks" },
+  { id: "OTHER", label: "Other Account" },
 ];
 
 export function AddAccountModal({
@@ -125,7 +125,7 @@ export function AddAccountModal({
             >
               {ACCOUNT_TYPES.map((t) => (
                 <option key={t.id} value={t.id}>
-                  {t.icon} {t.label}
+                  {t.label}
                 </option>
               ))}
             </select>

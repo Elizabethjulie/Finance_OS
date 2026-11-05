@@ -16,6 +16,7 @@ import {
   PlusIcon,
   LightbulbIcon,
 } from "@/components/ui/icons";
+import { LuX } from "react-icons/lu";
 import Decimal from "decimal.js";
 import type { Account, AccountType } from "@/lib/generated/prisma/client";
 import { formatAmount, toDecimal, getCurrencySymbol } from "@/lib/finance/money";
@@ -216,9 +217,10 @@ export function AccountsClient({
             <button
               type="button"
               onClick={() => setSyncNotice(null)}
-              className="text-emerald-600 hover:text-emerald-900 font-semibold text-xs"
+              className="text-emerald-600 hover:text-emerald-900 p-0.5 rounded transition-colors"
+              aria-label="Dismiss notice"
             >
-              ✕
+              <LuX className="w-3.5 h-3.5" />
             </button>
           </div>
         )}

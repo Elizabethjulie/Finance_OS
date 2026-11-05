@@ -14,6 +14,7 @@ import {
   AppleIcon,
   ShieldIcon,
 } from "@/components/ui/icons";
+import { LuLock, LuArrowRight } from "react-icons/lu";
 
 const initialState: SignupFormState = {};
 
@@ -31,7 +32,7 @@ export default function SignupPage() {
 
         <div className="flex items-center gap-1.5 text-xs font-medium text-slate-500">
           <span>Encrypted Workspace</span>
-          <span className="text-slate-400">🔒</span>
+          <LuLock className="w-3.5 h-3.5 text-slate-400" />
         </div>
       </header>
 
@@ -150,7 +151,7 @@ export default function SignupPage() {
               className="w-full mt-2 inline-flex items-center justify-center gap-2 bg-[#0F5147] hover:bg-[#0C433A] text-white py-3 rounded-xl text-sm font-semibold shadow-xs transition-all hover:shadow-md cursor-pointer"
             >
               <span>Create account</span>
-              <span>→</span>
+              <LuArrowRight className="w-4 h-4" />
             </button>
           </form>
 

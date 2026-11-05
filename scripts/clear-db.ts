@@ -24,7 +24,7 @@ const DEFAULT_CATEGORIES = [
 ];
 
 async function clearDatabase() {
-  console.log("🧹 Clearing all user data, transactions, accounts, budgets, and goals...");
+  console.log("[DB] Clearing all user data, transactions, accounts, budgets, and goals...");
 
   // Truncate tables with CASCADE
   await prisma.$executeRawUnsafe(`
@@ -47,7 +47,7 @@ async function clearDatabase() {
     },
   });
 
-  console.log("🌱 Ensuring default categories are present...");
+  console.log("[DB] Ensuring default categories are present...");
   for (const name of DEFAULT_CATEGORIES) {
     const existing = await prisma.category.findFirst({
       where: { userId: null, name },
@@ -72,7 +72,7 @@ async function clearDatabase() {
       prisma.incomeSource.count(),
     ]);
 
-  console.log("✨ Database successfully cleared and reset to fresh state!");
+  console.log("[DB] Database successfully cleared and reset to fresh state!");
   console.log("Current record counts:", {
     users,
     accounts,
@@ -87,7 +87,7 @@ async function clearDatabase() {
 
 clearDatabase()
   .catch((e) => {
-    console.error("❌ Failed to clear database:", e);
+    console.error("[DB ERROR] Failed to clear database:", e);
     process.exit(1);
   })
   .finally(() => prisma.$disconnect());
