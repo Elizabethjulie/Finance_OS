@@ -185,6 +185,7 @@ export type CategoryWhereInput = {
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   transactions?: Prisma.TransactionListRelationFilter
   budgetCategories?: Prisma.BudgetCategoryListRelationFilter
+  correctionRules?: Prisma.CategoryCorrectionRuleListRelationFilter
 }
 
 export type CategoryOrderByWithRelationInput = {
@@ -196,6 +197,7 @@ export type CategoryOrderByWithRelationInput = {
   user?: Prisma.UserOrderByWithRelationInput
   transactions?: Prisma.TransactionOrderByRelationAggregateInput
   budgetCategories?: Prisma.BudgetCategoryOrderByRelationAggregateInput
+  correctionRules?: Prisma.CategoryCorrectionRuleOrderByRelationAggregateInput
 }
 
 export type CategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -211,6 +213,7 @@ export type CategoryWhereUniqueInput = Prisma.AtLeast<{
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   transactions?: Prisma.TransactionListRelationFilter
   budgetCategories?: Prisma.BudgetCategoryListRelationFilter
+  correctionRules?: Prisma.CategoryCorrectionRuleListRelationFilter
 }, "id" | "userId_name">
 
 export type CategoryOrderByWithAggregationInput = {
@@ -243,6 +246,7 @@ export type CategoryCreateInput = {
   user?: Prisma.UserCreateNestedOneWithoutCategoriesInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgetCategories?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateInput = {
@@ -253,6 +257,7 @@ export type CategoryUncheckedCreateInput = {
   isDefault?: boolean
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgetCategories?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUpdateInput = {
@@ -263,6 +268,7 @@ export type CategoryUpdateInput = {
   user?: Prisma.UserUpdateOneWithoutCategoriesNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgetCategories?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateInput = {
@@ -273,6 +279,7 @@ export type CategoryUncheckedUpdateInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgetCategories?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyInput = {
@@ -419,6 +426,20 @@ export type CategoryUpdateOneRequiredWithoutBudgetCategoriesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutBudgetCategoriesInput, Prisma.CategoryUpdateWithoutBudgetCategoriesInput>, Prisma.CategoryUncheckedUpdateWithoutBudgetCategoriesInput>
 }
 
+export type CategoryCreateNestedOneWithoutCorrectionRulesInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedCreateWithoutCorrectionRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutCorrectionRulesInput
+  connect?: Prisma.CategoryWhereUniqueInput
+}
+
+export type CategoryUpdateOneRequiredWithoutCorrectionRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.CategoryCreateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedCreateWithoutCorrectionRulesInput>
+  connectOrCreate?: Prisma.CategoryCreateOrConnectWithoutCorrectionRulesInput
+  upsert?: Prisma.CategoryUpsertWithoutCorrectionRulesInput
+  connect?: Prisma.CategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.CategoryUpdateToOneWithWhereWithoutCorrectionRulesInput, Prisma.CategoryUpdateWithoutCorrectionRulesInput>, Prisma.CategoryUncheckedUpdateWithoutCorrectionRulesInput>
+}
+
 export type CategoryCreateWithoutUserInput = {
   id?: string
   name: string
@@ -426,6 +447,7 @@ export type CategoryCreateWithoutUserInput = {
   isDefault?: boolean
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
   budgetCategories?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutUserInput = {
@@ -435,6 +457,7 @@ export type CategoryUncheckedCreateWithoutUserInput = {
   isDefault?: boolean
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
   budgetCategories?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutUserInput = {
@@ -481,6 +504,7 @@ export type CategoryCreateWithoutTransactionsInput = {
   isDefault?: boolean
   user?: Prisma.UserCreateNestedOneWithoutCategoriesInput
   budgetCategories?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutTransactionsInput = {
@@ -490,6 +514,7 @@ export type CategoryUncheckedCreateWithoutTransactionsInput = {
   icon?: string | null
   isDefault?: boolean
   budgetCategories?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutTransactionsInput = {
@@ -515,6 +540,7 @@ export type CategoryUpdateWithoutTransactionsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneWithoutCategoriesNestedInput
   budgetCategories?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutTransactionsInput = {
@@ -524,6 +550,7 @@ export type CategoryUncheckedUpdateWithoutTransactionsInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   budgetCategories?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateWithoutBudgetCategoriesInput = {
@@ -533,6 +560,7 @@ export type CategoryCreateWithoutBudgetCategoriesInput = {
   isDefault?: boolean
   user?: Prisma.UserCreateNestedOneWithoutCategoriesInput
   transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryUncheckedCreateWithoutBudgetCategoriesInput = {
@@ -542,6 +570,7 @@ export type CategoryUncheckedCreateWithoutBudgetCategoriesInput = {
   icon?: string | null
   isDefault?: boolean
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type CategoryCreateOrConnectWithoutBudgetCategoriesInput = {
@@ -567,6 +596,7 @@ export type CategoryUpdateWithoutBudgetCategoriesInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   user?: Prisma.UserUpdateOneWithoutCategoriesNestedInput
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutBudgetCategoriesInput = {
@@ -576,6 +606,63 @@ export type CategoryUncheckedUpdateWithoutBudgetCategoriesInput = {
   icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryCreateWithoutCorrectionRulesInput = {
+  id?: string
+  name: string
+  icon?: string | null
+  isDefault?: boolean
+  user?: Prisma.UserCreateNestedOneWithoutCategoriesInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutCategoryInput
+  budgetCategories?: Prisma.BudgetCategoryCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryUncheckedCreateWithoutCorrectionRulesInput = {
+  id?: string
+  userId?: string | null
+  name: string
+  icon?: string | null
+  isDefault?: boolean
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutCategoryInput
+  budgetCategories?: Prisma.BudgetCategoryUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type CategoryCreateOrConnectWithoutCorrectionRulesInput = {
+  where: Prisma.CategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedCreateWithoutCorrectionRulesInput>
+}
+
+export type CategoryUpsertWithoutCorrectionRulesInput = {
+  update: Prisma.XOR<Prisma.CategoryUpdateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedUpdateWithoutCorrectionRulesInput>
+  create: Prisma.XOR<Prisma.CategoryCreateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedCreateWithoutCorrectionRulesInput>
+  where?: Prisma.CategoryWhereInput
+}
+
+export type CategoryUpdateToOneWithWhereWithoutCorrectionRulesInput = {
+  where?: Prisma.CategoryWhereInput
+  data: Prisma.XOR<Prisma.CategoryUpdateWithoutCorrectionRulesInput, Prisma.CategoryUncheckedUpdateWithoutCorrectionRulesInput>
+}
+
+export type CategoryUpdateWithoutCorrectionRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  user?: Prisma.UserUpdateOneWithoutCategoriesNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
+  budgetCategories?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+}
+
+export type CategoryUncheckedUpdateWithoutCorrectionRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  icon?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
+  budgetCategories?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryCreateManyUserInput = {
@@ -592,6 +679,7 @@ export type CategoryUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUpdateManyWithoutCategoryNestedInput
   budgetCategories?: Prisma.BudgetCategoryUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateWithoutUserInput = {
@@ -601,6 +689,7 @@ export type CategoryUncheckedUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutCategoryNestedInput
   budgetCategories?: Prisma.BudgetCategoryUncheckedUpdateManyWithoutCategoryNestedInput
+  correctionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type CategoryUncheckedUpdateManyWithoutUserInput = {
@@ -618,11 +707,13 @@ export type CategoryUncheckedUpdateManyWithoutUserInput = {
 export type CategoryCountOutputType = {
   transactions: number
   budgetCategories: number
+  correctionRules: number
 }
 
 export type CategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   transactions?: boolean | CategoryCountOutputTypeCountTransactionsArgs
   budgetCategories?: boolean | CategoryCountOutputTypeCountBudgetCategoriesArgs
+  correctionRules?: boolean | CategoryCountOutputTypeCountCorrectionRulesArgs
 }
 
 /**
@@ -649,6 +740,13 @@ export type CategoryCountOutputTypeCountBudgetCategoriesArgs<ExtArgs extends run
   where?: Prisma.BudgetCategoryWhereInput
 }
 
+/**
+ * CategoryCountOutputType without action
+ */
+export type CategoryCountOutputTypeCountCorrectionRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CategoryCorrectionRuleWhereInput
+}
+
 
 export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -659,6 +757,7 @@ export type CategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   user?: boolean | Prisma.Category$userArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   budgetCategories?: boolean | Prisma.Category$budgetCategoriesArgs<ExtArgs>
+  correctionRules?: boolean | Prisma.Category$correctionRulesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["category"]>
 
@@ -693,6 +792,7 @@ export type CategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArg
   user?: boolean | Prisma.Category$userArgs<ExtArgs>
   transactions?: boolean | Prisma.Category$transactionsArgs<ExtArgs>
   budgetCategories?: boolean | Prisma.Category$budgetCategoriesArgs<ExtArgs>
+  correctionRules?: boolean | Prisma.Category$correctionRulesArgs<ExtArgs>
   _count?: boolean | Prisma.CategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type CategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -708,6 +808,7 @@ export type $CategoryPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     user: Prisma.$UserPayload<ExtArgs> | null
     transactions: Prisma.$TransactionPayload<ExtArgs>[]
     budgetCategories: Prisma.$BudgetCategoryPayload<ExtArgs>[]
+    correctionRules: Prisma.$CategoryCorrectionRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1112,6 +1213,7 @@ export interface Prisma__CategoryClient<T, Null = never, ExtArgs extends runtime
   user<T extends Prisma.Category$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   transactions<T extends Prisma.Category$transactionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$transactionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TransactionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   budgetCategories<T extends Prisma.Category$budgetCategoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$budgetCategoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetCategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  correctionRules<T extends Prisma.Category$correctionRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Category$correctionRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryCorrectionRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1611,6 +1713,30 @@ export type Category$budgetCategoriesArgs<ExtArgs extends runtime.Types.Extensio
   take?: number
   skip?: number
   distinct?: Prisma.BudgetCategoryScalarFieldEnum | Prisma.BudgetCategoryScalarFieldEnum[]
+}
+
+/**
+ * Category.correctionRules
+ */
+export type Category$correctionRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CategoryCorrectionRule
+   */
+  select?: Prisma.CategoryCorrectionRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CategoryCorrectionRule
+   */
+  omit?: Prisma.CategoryCorrectionRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryCorrectionRuleInclude<ExtArgs> | null
+  where?: Prisma.CategoryCorrectionRuleWhereInput
+  orderBy?: Prisma.CategoryCorrectionRuleOrderByWithRelationInput | Prisma.CategoryCorrectionRuleOrderByWithRelationInput[]
+  cursor?: Prisma.CategoryCorrectionRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CategoryCorrectionRuleScalarFieldEnum | Prisma.CategoryCorrectionRuleScalarFieldEnum[]
 }
 
 /**

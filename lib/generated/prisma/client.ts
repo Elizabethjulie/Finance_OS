@@ -86,3 +86,13 @@ export type Budget = Prisma.BudgetModel
  * 
  */
 export type BudgetCategory = Prisma.BudgetCategoryModel
+/**
+ * Model AIInsight
+ * 
+ */
+export type AIInsight = Prisma.AIInsightModel
+/**
+ * Model CategoryCorrectionRule
+ * 
+ */
+export type CategoryCorrectionRule = Prisma.CategoryCorrectionRuleModel

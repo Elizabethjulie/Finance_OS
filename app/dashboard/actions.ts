@@ -6,6 +6,7 @@ import { requireUserId } from "@/lib/auth/session";
 import { prisma } from "@/lib/db/prisma";
 import { createTransaction } from "@/services/transaction/transaction";
 import { createAccount } from "@/services/account/account";
+import { suggestCategoryForUser, recordCategoryRule } from "@/services/ai/categorization";
 import { createTransactionSchema, type CreateTransactionInput } from "@/lib/validation/transactions";
 import { createAccountSchema, type CreateAccountInput } from "@/lib/validation/accounts";
 
@@ -18,12 +19,33 @@ export async function createTransactionAction(input: CreateTransactionInput) {
     const userId = await requireUserId();
     const data = createTransactionSchema.parse(input);
     const result = await createTransaction(userId, data);
+
+    // Record merchant habit in user's long-term memory (non-blocking)
+    if (data.categoryId && data.description) {
+      await recordCategoryRule(userId, data.description, data.categoryId);
+    }
+
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/accounts");
     return { success: true, transaction: result };
   } catch (err: unknown) {
     console.error("createTransactionAction error:", err);
     return { error: err instanceof Error ? err.message : "Failed to create transaction" };
+  }
+}
+
+export async function suggestCategoryAction(input: {
+  description: string;
+  amount?: string;
+  currency?: "KES" | "EUR" | "USD" | "GBP";
+}) {
+  try {
+    const userId = await requireUserId();
+    const suggestion = await suggestCategoryForUser(userId, input);
+    return { success: true, suggestion };
+  } catch (err: unknown) {
+    console.error("suggestCategoryAction error:", err);
+    return { error: err instanceof Error ? err.message : "Failed to suggest category" };
   }
 }
 

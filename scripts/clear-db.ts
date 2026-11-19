@@ -29,6 +29,8 @@ async function clearDatabase() {
   // Truncate tables with CASCADE
   await prisma.$executeRawUnsafe(`
     TRUNCATE TABLE 
+      "AIInsight",
+      "CategoryCorrectionRule",
       "GoalContribution",
       "Goal",
       "BudgetCategory",

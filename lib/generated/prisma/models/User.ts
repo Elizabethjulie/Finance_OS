@@ -221,6 +221,8 @@ export type UserWhereInput = {
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
   goalContributions?: Prisma.GoalContributionListRelationFilter
+  aiInsights?: Prisma.AIInsightListRelationFilter
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -240,6 +242,8 @@ export type UserOrderByWithRelationInput = {
   budgets?: Prisma.BudgetOrderByRelationAggregateInput
   goals?: Prisma.GoalOrderByRelationAggregateInput
   goalContributions?: Prisma.GoalContributionOrderByRelationAggregateInput
+  aiInsights?: Prisma.AIInsightOrderByRelationAggregateInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -262,6 +266,8 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   budgets?: Prisma.BudgetListRelationFilter
   goals?: Prisma.GoalListRelationFilter
   goalContributions?: Prisma.GoalContributionListRelationFilter
+  aiInsights?: Prisma.AIInsightListRelationFilter
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -311,6 +317,8 @@ export type UserCreateInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -330,6 +338,8 @@ export type UserUncheckedCreateInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -349,6 +359,8 @@ export type UserUpdateInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -368,6 +380,8 @@ export type UserUncheckedUpdateInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -572,6 +586,34 @@ export type UserUpdateOneRequiredWithoutBudgetsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutBudgetsInput, Prisma.UserUpdateWithoutBudgetsInput>, Prisma.UserUncheckedUpdateWithoutBudgetsInput>
 }
 
+export type UserCreateNestedOneWithoutAiInsightsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAiInsightsInput, Prisma.UserUncheckedCreateWithoutAiInsightsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAiInsightsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutAiInsightsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutAiInsightsInput, Prisma.UserUncheckedCreateWithoutAiInsightsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutAiInsightsInput
+  upsert?: Prisma.UserUpsertWithoutAiInsightsInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutAiInsightsInput, Prisma.UserUpdateWithoutAiInsightsInput>, Prisma.UserUncheckedUpdateWithoutAiInsightsInput>
+}
+
+export type UserCreateNestedOneWithoutCategoryCorrectionRulesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedCreateWithoutCategoryCorrectionRulesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCategoryCorrectionRulesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCategoryCorrectionRulesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedCreateWithoutCategoryCorrectionRulesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCategoryCorrectionRulesInput
+  upsert?: Prisma.UserUpsertWithoutCategoryCorrectionRulesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCategoryCorrectionRulesInput, Prisma.UserUpdateWithoutCategoryCorrectionRulesInput>, Prisma.UserUncheckedUpdateWithoutCategoryCorrectionRulesInput>
+}
+
 export type UserCreateWithoutIncomeSourcesInput = {
   id?: string
   email: string
@@ -588,6 +630,8 @@ export type UserCreateWithoutIncomeSourcesInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutIncomeSourcesInput = {
@@ -606,6 +650,8 @@ export type UserUncheckedCreateWithoutIncomeSourcesInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutIncomeSourcesInput = {
@@ -640,6 +686,8 @@ export type UserUpdateWithoutIncomeSourcesInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutIncomeSourcesInput = {
@@ -658,6 +706,8 @@ export type UserUncheckedUpdateWithoutIncomeSourcesInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -676,6 +726,8 @@ export type UserCreateWithoutAccountsInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -694,6 +746,8 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -728,6 +782,8 @@ export type UserUpdateWithoutAccountsInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -746,6 +802,8 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutCategoriesInput = {
@@ -764,6 +822,8 @@ export type UserCreateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutCategoriesInput = {
@@ -782,6 +842,8 @@ export type UserUncheckedCreateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutCategoriesInput = {
@@ -816,6 +878,8 @@ export type UserUpdateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutCategoriesInput = {
@@ -834,6 +898,8 @@ export type UserUncheckedUpdateWithoutCategoriesInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTransactionsInput = {
@@ -852,6 +918,8 @@ export type UserCreateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTransactionsInput = {
@@ -870,6 +938,8 @@ export type UserUncheckedCreateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTransactionsInput = {
@@ -904,6 +974,8 @@ export type UserUpdateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTransactionsInput = {
@@ -922,6 +994,8 @@ export type UserUncheckedUpdateWithoutTransactionsInput = {
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoalsInput = {
@@ -940,6 +1014,8 @@ export type UserCreateWithoutGoalsInput = {
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoalsInput = {
@@ -958,6 +1034,8 @@ export type UserUncheckedCreateWithoutGoalsInput = {
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoalsInput = {
@@ -992,6 +1070,8 @@ export type UserUpdateWithoutGoalsInput = {
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoalsInput = {
@@ -1010,6 +1090,8 @@ export type UserUncheckedUpdateWithoutGoalsInput = {
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutGoalContributionsInput = {
@@ -1028,6 +1110,8 @@ export type UserCreateWithoutGoalContributionsInput = {
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutGoalContributionsInput = {
@@ -1046,6 +1130,8 @@ export type UserUncheckedCreateWithoutGoalContributionsInput = {
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutGoalContributionsInput = {
@@ -1080,6 +1166,8 @@ export type UserUpdateWithoutGoalContributionsInput = {
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutGoalContributionsInput = {
@@ -1098,6 +1186,8 @@ export type UserUncheckedUpdateWithoutGoalContributionsInput = {
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBudgetsInput = {
@@ -1116,6 +1206,8 @@ export type UserCreateWithoutBudgetsInput = {
   transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBudgetsInput = {
@@ -1134,6 +1226,8 @@ export type UserUncheckedCreateWithoutBudgetsInput = {
   transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
   goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
   goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBudgetsInput = {
@@ -1168,6 +1262,8 @@ export type UserUpdateWithoutBudgetsInput = {
   transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBudgetsInput = {
@@ -1186,6 +1282,200 @@ export type UserUncheckedUpdateWithoutBudgetsInput = {
   transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
   goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
   goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutAiInsightsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  baseCurrency?: $Enums.Currency
+  country?: string | null
+  onboardedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incomeSources?: Prisma.IncomeSourceCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutAiInsightsInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  baseCurrency?: $Enums.Currency
+  country?: string | null
+  onboardedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incomeSources?: Prisma.IncomeSourceUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutAiInsightsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutAiInsightsInput, Prisma.UserUncheckedCreateWithoutAiInsightsInput>
+}
+
+export type UserUpsertWithoutAiInsightsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutAiInsightsInput, Prisma.UserUncheckedUpdateWithoutAiInsightsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutAiInsightsInput, Prisma.UserUncheckedCreateWithoutAiInsightsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutAiInsightsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutAiInsightsInput, Prisma.UserUncheckedUpdateWithoutAiInsightsInput>
+}
+
+export type UserUpdateWithoutAiInsightsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  baseCurrency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incomeSources?: Prisma.IncomeSourceUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutAiInsightsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  baseCurrency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incomeSources?: Prisma.IncomeSourceUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  categoryCorrectionRules?: Prisma.CategoryCorrectionRuleUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCategoryCorrectionRulesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  baseCurrency?: $Enums.Currency
+  country?: string | null
+  onboardedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incomeSources?: Prisma.IncomeSourceCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalCreateNestedManyWithoutUserInput
+  goalContributions?: Prisma.GoalContributionCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCategoryCorrectionRulesInput = {
+  id?: string
+  email: string
+  passwordHash: string
+  name: string
+  baseCurrency?: $Enums.Currency
+  country?: string | null
+  onboardedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  incomeSources?: Prisma.IncomeSourceUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
+  transactions?: Prisma.TransactionUncheckedCreateNestedManyWithoutUserInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutUserInput
+  goals?: Prisma.GoalUncheckedCreateNestedManyWithoutUserInput
+  goalContributions?: Prisma.GoalContributionUncheckedCreateNestedManyWithoutUserInput
+  aiInsights?: Prisma.AIInsightUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCategoryCorrectionRulesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedCreateWithoutCategoryCorrectionRulesInput>
+}
+
+export type UserUpsertWithoutCategoryCorrectionRulesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedUpdateWithoutCategoryCorrectionRulesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedCreateWithoutCategoryCorrectionRulesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCategoryCorrectionRulesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCategoryCorrectionRulesInput, Prisma.UserUncheckedUpdateWithoutCategoryCorrectionRulesInput>
+}
+
+export type UserUpdateWithoutCategoryCorrectionRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  baseCurrency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incomeSources?: Prisma.IncomeSourceUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUpdateManyWithoutUserNestedInput
+  goalContributions?: Prisma.GoalContributionUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCategoryCorrectionRulesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  baseCurrency?: Prisma.EnumCurrencyFieldUpdateOperationsInput | $Enums.Currency
+  country?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  onboardedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  incomeSources?: Prisma.IncomeSourceUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+  transactions?: Prisma.TransactionUncheckedUpdateManyWithoutUserNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutUserNestedInput
+  goals?: Prisma.GoalUncheckedUpdateManyWithoutUserNestedInput
+  goalContributions?: Prisma.GoalContributionUncheckedUpdateManyWithoutUserNestedInput
+  aiInsights?: Prisma.AIInsightUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -1201,6 +1491,8 @@ export type UserCountOutputType = {
   budgets: number
   goals: number
   goalContributions: number
+  aiInsights: number
+  categoryCorrectionRules: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1211,6 +1503,8 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   budgets?: boolean | UserCountOutputTypeCountBudgetsArgs
   goals?: boolean | UserCountOutputTypeCountGoalsArgs
   goalContributions?: boolean | UserCountOutputTypeCountGoalContributionsArgs
+  aiInsights?: boolean | UserCountOutputTypeCountAiInsightsArgs
+  categoryCorrectionRules?: boolean | UserCountOutputTypeCountCategoryCorrectionRulesArgs
 }
 
 /**
@@ -1272,6 +1566,20 @@ export type UserCountOutputTypeCountGoalContributionsArgs<ExtArgs extends runtim
   where?: Prisma.GoalContributionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountAiInsightsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AIInsightWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCategoryCorrectionRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CategoryCorrectionRuleWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1290,6 +1598,8 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   budgets?: boolean | Prisma.User$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   goalContributions?: boolean | Prisma.User$goalContributionsArgs<ExtArgs>
+  aiInsights?: boolean | Prisma.User$aiInsightsArgs<ExtArgs>
+  categoryCorrectionRules?: boolean | Prisma.User$categoryCorrectionRulesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1338,6 +1648,8 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   budgets?: boolean | Prisma.User$budgetsArgs<ExtArgs>
   goals?: boolean | Prisma.User$goalsArgs<ExtArgs>
   goalContributions?: boolean | Prisma.User$goalContributionsArgs<ExtArgs>
+  aiInsights?: boolean | Prisma.User$aiInsightsArgs<ExtArgs>
+  categoryCorrectionRules?: boolean | Prisma.User$categoryCorrectionRulesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1353,6 +1665,8 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     budgets: Prisma.$BudgetPayload<ExtArgs>[]
     goals: Prisma.$GoalPayload<ExtArgs>[]
     goalContributions: Prisma.$GoalContributionPayload<ExtArgs>[]
+    aiInsights: Prisma.$AIInsightPayload<ExtArgs>[]
+    categoryCorrectionRules: Prisma.$CategoryCorrectionRulePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1765,6 +2079,8 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   budgets<T extends Prisma.User$budgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   goals<T extends Prisma.User$goalsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$goalsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   goalContributions<T extends Prisma.User$goalContributionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$goalContributionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$GoalContributionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  aiInsights<T extends Prisma.User$aiInsightsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$aiInsightsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AIInsightPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  categoryCorrectionRules<T extends Prisma.User$categoryCorrectionRulesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$categoryCorrectionRulesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryCorrectionRulePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2361,6 +2677,54 @@ export type User$goalContributionsArgs<ExtArgs extends runtime.Types.Extensions.
   take?: number
   skip?: number
   distinct?: Prisma.GoalContributionScalarFieldEnum | Prisma.GoalContributionScalarFieldEnum[]
+}
+
+/**
+ * User.aiInsights
+ */
+export type User$aiInsightsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AIInsight
+   */
+  select?: Prisma.AIInsightSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AIInsight
+   */
+  omit?: Prisma.AIInsightOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AIInsightInclude<ExtArgs> | null
+  where?: Prisma.AIInsightWhereInput
+  orderBy?: Prisma.AIInsightOrderByWithRelationInput | Prisma.AIInsightOrderByWithRelationInput[]
+  cursor?: Prisma.AIInsightWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AIInsightScalarFieldEnum | Prisma.AIInsightScalarFieldEnum[]
+}
+
+/**
+ * User.categoryCorrectionRules
+ */
+export type User$categoryCorrectionRulesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the CategoryCorrectionRule
+   */
+  select?: Prisma.CategoryCorrectionRuleSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the CategoryCorrectionRule
+   */
+  omit?: Prisma.CategoryCorrectionRuleOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryCorrectionRuleInclude<ExtArgs> | null
+  where?: Prisma.CategoryCorrectionRuleWhereInput
+  orderBy?: Prisma.CategoryCorrectionRuleOrderByWithRelationInput | Prisma.CategoryCorrectionRuleOrderByWithRelationInput[]
+  cursor?: Prisma.CategoryCorrectionRuleWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CategoryCorrectionRuleScalarFieldEnum | Prisma.CategoryCorrectionRuleScalarFieldEnum[]
 }
 
 /**

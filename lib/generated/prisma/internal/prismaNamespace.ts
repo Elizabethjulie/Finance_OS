@@ -405,7 +405,9 @@ export const ModelName = {
   Goal: 'Goal',
   GoalContribution: 'GoalContribution',
   Budget: 'Budget',
-  BudgetCategory: 'BudgetCategory'
+  BudgetCategory: 'BudgetCategory',
+  AIInsight: 'AIInsight',
+  CategoryCorrectionRule: 'CategoryCorrectionRule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -421,7 +423,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "incomeSource" | "account" | "category" | "transaction" | "goal" | "goalContribution" | "budget" | "budgetCategory"
+    modelProps: "user" | "incomeSource" | "account" | "category" | "transaction" | "goal" | "goalContribution" | "budget" | "budgetCategory" | "aIInsight" | "categoryCorrectionRule"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1091,6 +1093,154 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AIInsight: {
+      payload: Prisma.$AIInsightPayload<ExtArgs>
+      fields: Prisma.AIInsightFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AIInsightFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AIInsightFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        findFirst: {
+          args: Prisma.AIInsightFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AIInsightFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        findMany: {
+          args: Prisma.AIInsightFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>[]
+        }
+        create: {
+          args: Prisma.AIInsightCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        createMany: {
+          args: Prisma.AIInsightCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AIInsightCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>[]
+        }
+        delete: {
+          args: Prisma.AIInsightDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        update: {
+          args: Prisma.AIInsightUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        deleteMany: {
+          args: Prisma.AIInsightDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AIInsightUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AIInsightUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>[]
+        }
+        upsert: {
+          args: Prisma.AIInsightUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AIInsightPayload>
+        }
+        aggregate: {
+          args: Prisma.AIInsightAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAIInsight>
+        }
+        groupBy: {
+          args: Prisma.AIInsightGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInsightGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AIInsightCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AIInsightCountAggregateOutputType> | number
+        }
+      }
+    }
+    CategoryCorrectionRule: {
+      payload: Prisma.$CategoryCorrectionRulePayload<ExtArgs>
+      fields: Prisma.CategoryCorrectionRuleFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.CategoryCorrectionRuleFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.CategoryCorrectionRuleFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        findFirst: {
+          args: Prisma.CategoryCorrectionRuleFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.CategoryCorrectionRuleFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        findMany: {
+          args: Prisma.CategoryCorrectionRuleFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>[]
+        }
+        create: {
+          args: Prisma.CategoryCorrectionRuleCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        createMany: {
+          args: Prisma.CategoryCorrectionRuleCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.CategoryCorrectionRuleCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>[]
+        }
+        delete: {
+          args: Prisma.CategoryCorrectionRuleDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        update: {
+          args: Prisma.CategoryCorrectionRuleUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        deleteMany: {
+          args: Prisma.CategoryCorrectionRuleDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.CategoryCorrectionRuleUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.CategoryCorrectionRuleUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>[]
+        }
+        upsert: {
+          args: Prisma.CategoryCorrectionRuleUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$CategoryCorrectionRulePayload>
+        }
+        aggregate: {
+          args: Prisma.CategoryCorrectionRuleAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateCategoryCorrectionRule>
+        }
+        groupBy: {
+          args: Prisma.CategoryCorrectionRuleGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryCorrectionRuleGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.CategoryCorrectionRuleCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.CategoryCorrectionRuleCountAggregateOutputType> | number
+        }
+      }
+    }
   }
 } & {
   other: {
@@ -1264,12 +1414,48 @@ export const BudgetCategoryScalarFieldEnum = {
 export type BudgetCategoryScalarFieldEnum = (typeof BudgetCategoryScalarFieldEnum)[keyof typeof BudgetCategoryScalarFieldEnum]
 
 
+export const AIInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  year: 'year',
+  month: 'month',
+  currency: 'currency',
+  type: 'type',
+  title: 'title',
+  summary: 'summary',
+  actionableStep: 'actionableStep',
+  reasoning: 'reasoning',
+  isDismissed: 'isDismissed',
+  createdAt: 'createdAt'
+} as const
+
+export type AIInsightScalarFieldEnum = (typeof AIInsightScalarFieldEnum)[keyof typeof AIInsightScalarFieldEnum]
+
+
+export const CategoryCorrectionRuleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  keyword: 'keyword',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt'
+} as const
+
+export type CategoryCorrectionRuleScalarFieldEnum = (typeof CategoryCorrectionRuleScalarFieldEnum)[keyof typeof CategoryCorrectionRuleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -1286,6 +1472,15 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
 
 
@@ -1424,6 +1619,34 @@ export type IntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'In
  * Reference to a field of type 'Int[]'
  */
 export type ListIntFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Int[]'>
+    
+
+
+/**
+ * Reference to a field of type 'InsightType'
+ */
+export type EnumInsightTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightType'>
+    
+
+
+/**
+ * Reference to a field of type 'InsightType[]'
+ */
+export type ListEnumInsightTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'InsightType[]'>
+    
+
+
+/**
+ * Reference to a field of type 'Json'
+ */
+export type JsonFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Json'>
+    
+
+
+/**
+ * Reference to a field of type 'QueryMode'
+ */
+export type EnumQueryModeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'QueryMode'>
     
 
 
@@ -1600,6 +1823,8 @@ export type GlobalOmitConfig = {
   goalContribution?: Prisma.GoalContributionOmit
   budget?: Prisma.BudgetOmit
   budgetCategory?: Prisma.BudgetCategoryOmit
+  aIInsight?: Prisma.AIInsightOmit
+  categoryCorrectionRule?: Prisma.CategoryCorrectionRuleOmit
 }
 
 /* Types for Logging */

@@ -65,3 +65,13 @@ export const GoalType = {
 } as const
 
 export type GoalType = (typeof GoalType)[keyof typeof GoalType]
+
+
+export const InsightType = {
+  SAVINGS_OPPORTUNITY: 'SAVINGS_OPPORTUNITY',
+  SPENDING_ALERT: 'SPENDING_ALERT',
+  GOAL_PROGRESS: 'GOAL_PROGRESS',
+  CASH_FLOW_TREND: 'CASH_FLOW_TREND'
+} as const
+
+export type InsightType = (typeof InsightType)[keyof typeof InsightType]

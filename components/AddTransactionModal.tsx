@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { CloseIcon, CheckIcon } from "@/components/ui/icons";
-import { createTransactionAction } from "@/app/dashboard/actions";
+import { createTransactionAction, suggestCategoryAction } from "@/app/dashboard/actions";
 import type { Account } from "@/lib/generated/prisma/client";
 import { getCurrencySymbol } from "@/lib/finance/money";
 import {
@@ -22,6 +22,7 @@ import {
   LuArrowLeftRight,
   LuLandmark,
   LuSprout,
+  LuSparkles,
 } from "react-icons/lu";
 
 interface AddTransactionModalProps {
@@ -72,8 +73,19 @@ export function AddTransactionModal({
   const [selectedCategory, setSelectedCategory] = useState("Food & Dining");
   const [description, setDescription] = useState("");
   const [notes, setNotes] = useState("");
+  const [suggestedCategory, setSuggestedCategory] = useState<string | null>(null);
+  const [suggestionReason, setSuggestionReason] = useState<string | null>(null);
+  const [userManuallySelectedCategory, setUserManuallySelectedCategory] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen) {
+      setUserManuallySelectedCategory(false);
+      setSuggestedCategory(null);
+      setSuggestionReason(null);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     if (accounts.length > 0 && (!accountId || !accounts.some((a) => a.id === accountId))) {
@@ -98,6 +110,41 @@ export function AddTransactionModal({
     }
   }, [activeType]);
 
+  const selectedAccount = accounts.find((a) => a.id === accountId);
+  const activeCurrency = selectedAccount?.currency ?? defaultCurrency;
+  const currencySymbol = getCurrencySymbol(activeCurrency);
+
+  // Auto-suggest category from description using local memory fast-path & Gemini Flash
+  useEffect(() => {
+    if (!description.trim() || description.trim().length < 3 || activeType === "TRANSFER") {
+      setSuggestedCategory(null);
+      setSuggestionReason(null);
+      return;
+    }
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await suggestCategoryAction({
+          description: description.trim(),
+          amount: amount || "0.00",
+          currency: activeCurrency as "KES" | "EUR" | "USD" | "GBP",
+        });
+
+        if (res.success && res.suggestion) {
+          setSuggestedCategory(res.suggestion.categoryName);
+          setSuggestionReason(res.suggestion.reason);
+          if (!userManuallySelectedCategory) {
+            setSelectedCategory(res.suggestion.categoryName);
+          }
+        }
+      } catch {
+        // silent fail to avoid disturbing the user experience
+      }
+    }, 350);
+
+    return () => clearTimeout(timer);
+  }, [description, amount, activeCurrency, activeType, userManuallySelectedCategory]);
+
   if (!isOpen) return null;
 
   const currentCategories =
@@ -106,10 +153,6 @@ export function AddTransactionModal({
       : activeType === "EXPENSE"
       ? EXPENSE_CATEGORIES
       : TRANSFER_CATEGORIES;
-
-  const selectedAccount = accounts.find((a) => a.id === accountId);
-  const activeCurrency = selectedAccount?.currency ?? defaultCurrency;
-  const currencySymbol = getCurrencySymbol(activeCurrency);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -309,7 +352,10 @@ export function AddTransactionModal({
                   <button
                     key={cat.id}
                     type="button"
-                    onClick={() => setSelectedCategory(cat.name)}
+                    onClick={() => {
+                      setSelectedCategory(cat.name);
+                      setUserManuallySelectedCategory(true);
+                    }}
                     className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium transition-all ${
                       isSelected
                         ? "bg-[#D1EFE6] text-[#0F5147] border border-[#0F5147]/40 ring-1 ring-[#0F5147]/20"
@@ -337,6 +383,15 @@ export function AddTransactionModal({
               placeholder="e.g. Acme Client: Milestone Payout"
               className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2 text-xs text-slate-800 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
             />
+            {suggestedCategory && (
+              <div className="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#0F5147] bg-[#E8F5F1] px-2.5 py-1.5 rounded-lg border border-[#D1EFE6] animate-in fade-in duration-150">
+                <LuSparkles className="w-3.5 h-3.5 text-amber-600 shrink-0" />
+                <span>
+                  Suggested: <strong>{suggestedCategory}</strong>
+                  {suggestionReason ? ` • ${suggestionReason}` : ""}
+                </span>
+              </div>
+            )}
           </div>
 
           {/* Notes & Tags */}

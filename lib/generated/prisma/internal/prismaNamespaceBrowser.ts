@@ -59,7 +59,9 @@ export const ModelName = {
   Goal: 'Goal',
   GoalContribution: 'GoalContribution',
   Budget: 'Budget',
-  BudgetCategory: 'BudgetCategory'
+  BudgetCategory: 'BudgetCategory',
+  AIInsight: 'AIInsight',
+  CategoryCorrectionRule: 'CategoryCorrectionRule'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -212,12 +214,48 @@ export const BudgetCategoryScalarFieldEnum = {
 export type BudgetCategoryScalarFieldEnum = (typeof BudgetCategoryScalarFieldEnum)[keyof typeof BudgetCategoryScalarFieldEnum]
 
 
+export const AIInsightScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  year: 'year',
+  month: 'month',
+  currency: 'currency',
+  type: 'type',
+  title: 'title',
+  summary: 'summary',
+  actionableStep: 'actionableStep',
+  reasoning: 'reasoning',
+  isDismissed: 'isDismissed',
+  createdAt: 'createdAt'
+} as const
+
+export type AIInsightScalarFieldEnum = (typeof AIInsightScalarFieldEnum)[keyof typeof AIInsightScalarFieldEnum]
+
+
+export const CategoryCorrectionRuleScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  keyword: 'keyword',
+  categoryId: 'categoryId',
+  createdAt: 'createdAt'
+} as const
+
+export type CategoryCorrectionRuleScalarFieldEnum = (typeof CategoryCorrectionRuleScalarFieldEnum)[keyof typeof CategoryCorrectionRuleScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const JsonNullValueInput = {
+  JsonNull: JsonNull
+} as const
+
+export type JsonNullValueInput = (typeof JsonNullValueInput)[keyof typeof JsonNullValueInput]
 
 
 export const QueryMode = {
@@ -234,4 +272,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 
