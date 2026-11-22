@@ -126,7 +126,7 @@ export async function suggestCategoryWithMemory(input: {
   }
 
   try {
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
     const memoryContext = formatMemoryForPrompt(memory);
 
     const prompt = [
@@ -203,7 +203,7 @@ export async function generateInsightsWithMemory(
   }
 
   try {
-    const model = process.env.GEMINI_MODEL || "gemini-2.5-flash";
+    const model = process.env.GEMINI_MODEL || "gemini-3.5-flash-lite";
     const memoryContext = formatMemoryForPrompt(memory);
 
     const factSheet = {

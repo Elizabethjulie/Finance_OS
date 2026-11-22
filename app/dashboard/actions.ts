@@ -14,10 +14,37 @@ export async function logoutAction() {
   await signOut({ redirectTo: "/login" });
 }
 
-export async function createTransactionAction(input: CreateTransactionInput) {
+export async function createTransactionAction(input: CreateTransactionInput & { categoryName?: string }) {
   try {
     const userId = await requireUserId();
-    const data = createTransactionSchema.parse(input);
+    const rawInput = { ...input };
+
+    if (!rawInput.categoryId && input.categoryName) {
+      const name = input.categoryName.trim();
+      const cat = await prisma.category.findFirst({
+        where: {
+          OR: [{ userId }, { userId: null, isDefault: true }],
+          name: { equals: name, mode: "insensitive" },
+        },
+        select: { id: true },
+      });
+      if (cat) {
+        rawInput.categoryId = cat.id;
+      } else {
+        const cats = await prisma.category.findMany({
+          where: { OR: [{ userId }, { userId: null, isDefault: true }] },
+          select: { id: true, name: true },
+        });
+        const lowerName = name.toLowerCase();
+        const matched = cats.find((c) => {
+          const cLower = c.name.toLowerCase();
+          return lowerName.includes(cLower) || cLower.includes(lowerName);
+        });
+        if (matched) rawInput.categoryId = matched.id;
+      }
+    }
+
+    const data = createTransactionSchema.parse(rawInput);
     const result = await createTransaction(userId, data);
 
     // Record merchant habit in user's long-term memory (non-blocking)
@@ -27,6 +54,8 @@ export async function createTransactionAction(input: CreateTransactionInput) {
 
     revalidatePath("/dashboard");
     revalidatePath("/dashboard/accounts");
+    revalidatePath("/dashboard/budgets");
+    revalidatePath("/dashboard/insights");
     return { success: true, transaction: result };
   } catch (err: unknown) {
     console.error("createTransactionAction error:", err);

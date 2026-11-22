@@ -69,6 +69,8 @@ export async function createTransactionAction(
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/accounts");
+  revalidatePath("/dashboard/budgets");
+  revalidatePath("/dashboard/insights");
   return { success: true };
 }
 
@@ -85,6 +87,8 @@ export async function deleteTransactionAction(
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/accounts");
+  revalidatePath("/dashboard/budgets");
+  revalidatePath("/dashboard/insights");
   return { success: true };
 }
 
@@ -101,6 +105,9 @@ export async function updateTransactionCategoryAction(
 
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
+  revalidatePath("/dashboard/accounts");
+  revalidatePath("/dashboard/budgets");
+  revalidatePath("/dashboard/insights");
   return { success: true };
 }
 
@@ -118,6 +125,8 @@ export async function updateTransactionAction(
   revalidatePath("/transactions");
   revalidatePath("/dashboard");
   revalidatePath("/dashboard/accounts");
+  revalidatePath("/dashboard/budgets");
+  revalidatePath("/dashboard/insights");
   return { success: true };
 }
 

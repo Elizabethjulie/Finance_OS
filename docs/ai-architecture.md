@@ -203,7 +203,7 @@ export interface AIProvider {
 ### B. Implementations
 1. **`GeminiProvider` (`lib/ai/gemini.ts`)**:
    - Uses the official Google Gen AI SDK (`@google/genai`).
-   - Uses `gemini-2.5-flash` for high-speed, cost-effective structured JSON reasoning.
+   - Uses `gemini-3.5-flash-lite` for high-speed, cost-effective structured JSON reasoning.
    - Uses `responseSchema` for guaranteed JSON structure validation.
 2. **`MockAIProvider` (`lib/ai/mock.ts`)**:
    - Evaluates keyword matching and heuristic rules deterministically without network calls.

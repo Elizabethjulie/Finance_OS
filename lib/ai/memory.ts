@@ -107,7 +107,7 @@ export function formatMemoryForPrompt(memory?: UserFinancialMemory): string {
 
   const lines: string[] = [];
 
-  const habits = Object.entries(memory.merchantHabits);
+  const habits = Object.entries(memory.merchantHabits ?? {});
   if (habits.length > 0) {
     const habitStr = habits
       .slice(0, 15)

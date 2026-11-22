@@ -189,6 +189,7 @@ export function AddTransactionModal({
         amount: Number(amount).toFixed(2),
         currency: activeCurrency as "USD" | "KES" | "EUR" | "GBP",
         description: description.trim() || `${activeType} - ${selectedCategory}`,
+        categoryName: activeType === "TRANSFER" ? undefined : selectedCategory,
         notes: notes.trim(),
         date: new Date(date).toISOString(),
       });

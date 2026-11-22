@@ -4,12 +4,14 @@ import { prisma } from "@/lib/db/prisma";
 import { listAccounts } from "@/services/account/account";
 import { listCategories } from "@/services/category/category";
 import { getBudgetWithActuals } from "@/services/budget/budget";
+import { getMonthRange } from "@/lib/finance/dates";
 import { BudgetsClient } from "./BudgetsClient";
 
 interface BudgetsPageProps {
   searchParams?: {
     year?: string;
     month?: string;
+    currency?: string;
   };
 }
 
@@ -49,13 +51,39 @@ export default async function BudgetsPage({ searchParams }: BudgetsPageProps) {
   const validYear = Number.isInteger(selectedYear) && selectedYear >= 2000 && selectedYear <= 2100 ? selectedYear : fallbackYear;
   const validMonth = Number.isInteger(selectedMonth) && selectedMonth >= 1 && selectedMonth <= 12 ? selectedMonth : fallbackMonth;
 
-  const [accounts, categories, budget] = await Promise.all([
+  const validCurrencies: readonly string[] = ["KES", "EUR", "USD", "GBP"];
+  const isCurrencyValid = searchParams?.currency && validCurrencies.includes(searchParams.currency);
+  const selectedCurrency = (isCurrencyValid ? searchParams?.currency : user.baseCurrency) as
+    | "KES"
+    | "EUR"
+    | "USD"
+    | "GBP";
+
+  const range = getMonthRange(validYear, validMonth, "Africa/Nairobi");
+
+  const [accounts, categories, budget, monthTransactions] = await Promise.all([
     listAccounts(userId),
     listCategories(userId),
     getBudgetWithActuals(userId, {
       year: validYear,
       month: validMonth,
-      currency: user.baseCurrency,
+      currency: selectedCurrency,
+    }),
+    prisma.transaction.findMany({
+      where: {
+        userId,
+        currency: selectedCurrency,
+        deletedAt: null,
+        date: {
+          gte: range.start,
+          lt: range.end,
+        },
+      },
+      include: {
+        category: true,
+        account: true,
+      },
+      orderBy: { date: "desc" },
     }),
   ]);
 
@@ -70,6 +98,8 @@ export default async function BudgetsPage({ searchParams }: BudgetsPageProps) {
       initialBudget={budget}
       selectedYear={validYear}
       selectedMonth={validMonth}
+      selectedCurrency={selectedCurrency}
+      monthTransactions={monthTransactions}
     />
   );
 }

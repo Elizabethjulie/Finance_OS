@@ -15,11 +15,12 @@ import {
   CheckIcon,
   LightbulbIcon,
 } from "@/components/ui/icons";
-import { LuChevronLeft, LuChevronRight, LuX } from "react-icons/lu";
-import type { Account, Category } from "@/lib/generated/prisma/client";
+import { LuChevronLeft, LuChevronRight, LuX, LuChevronDown, LuChevronUp, LuPencil } from "react-icons/lu";
+import type { Account, Category, Currency, Transaction } from "@/lib/generated/prisma/client";
 import type { BudgetVsActualSummary } from "@/lib/finance/budget";
 import { getCurrencySymbol } from "@/lib/finance/money";
 import { generateBudgetAction, updateBudgetAllocationsAction } from "@/app/budgets/actions";
+import { updateTransactionAction } from "@/app/transactions/actions";
 
 interface BudgetsClientProps {
   user: {
@@ -31,7 +32,11 @@ interface BudgetsClientProps {
   initialBudget: BudgetVsActualSummary | null;
   selectedYear: number;
   selectedMonth: number;
+  selectedCurrency?: Currency;
+  monthTransactions?: (Transaction & { account?: Account | null; category?: Category | null })[];
 }
+
+const CURRENCIES: Currency[] = ["KES", "EUR", "USD", "GBP"];
 
 function formatWithCommas(amountStr: string): string {
   const parts = (amountStr || "0.00").split(".");
@@ -65,12 +70,20 @@ export function BudgetsClient({
   initialBudget,
   selectedYear,
   selectedMonth,
+  selectedCurrency,
+  monthTransactions = [],
 }: BudgetsClientProps) {
   const router = useRouter();
   const [isGenerating, startGenerating] = useTransition();
   const [isUpdating, startUpdating] = useTransition();
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [feedbackNotice, setFeedbackNotice] = useState<{ type: "success" | "error"; message: string } | null>(null);
+
+  // Spend editing states
+  const [expandedEnvelopeId, setExpandedEnvelopeId] = useState<string | null>(null);
+  const [editingTxId, setEditingTxId] = useState<string | null>(null);
+  const [editingAmount, setEditingAmount] = useState<string>("");
+  const [isSavingTx, setIsSavingTx] = useState(false);
 
   // Editable category state for the adjustment modal
   const [editableAllocations, setEditableAllocations] = useState<Record<string, string>>(() => {
@@ -83,11 +96,37 @@ export function BudgetsClient({
     return initial;
   });
 
-  const activeCurrency = initialBudget?.currency ?? user.baseCurrency;
+  const activeCurrency = selectedCurrency || (initialBudget?.currency as Currency) || (user.baseCurrency as Currency);
   const currencySymbol = getCurrencySymbol(activeCurrency);
 
+  function handleSaveTxAmount(txId: string) {
+    if (!editingAmount || Number(editingAmount) <= 0) return;
+    setIsSavingTx(true);
+    startUpdating(async () => {
+      const res = await updateTransactionAction(txId, {
+        amount: Number(editingAmount).toFixed(2),
+      });
+      setIsSavingTx(false);
+      if (res.error) {
+        setFeedbackNotice({ type: "error", message: res.error });
+      } else {
+        setFeedbackNotice({
+          type: "success",
+          message: "Transaction amount updated. Envelope recalculated.",
+        });
+        setEditingTxId(null);
+        router.refresh();
+      }
+      setTimeout(() => setFeedbackNotice(null), 3500);
+    });
+  }
+
   function handleMonthChange(newYear: number, newMonth: number) {
-    router.push(`/dashboard/budgets?year=${newYear}&month=${newMonth}`);
+    router.push(`/dashboard/budgets?year=${newYear}&month=${newMonth}&currency=${activeCurrency}`);
+  }
+
+  function handleSelectCurrency(curr: Currency) {
+    router.push(`/dashboard/budgets?year=${selectedYear}&month=${selectedMonth}&currency=${curr}`);
   }
 
   function handlePrevMonth() {
@@ -111,7 +150,7 @@ export function BudgetsClient({
       const formData = new FormData();
       formData.set("year", String(selectedYear));
       formData.set("month", String(selectedMonth));
-      formData.set("currency", user.baseCurrency);
+      formData.set("currency", activeCurrency);
 
       const res = await generateBudgetAction({}, formData);
       if (res.error) {
@@ -119,7 +158,7 @@ export function BudgetsClient({
       } else {
         setFeedbackNotice({
           type: "success",
-          message: `Goal-based budget generated for ${MONTH_NAMES[selectedMonth - 1]} ${selectedYear}.`,
+          message: `Goal-based budget generated for ${MONTH_NAMES[selectedMonth - 1]} ${selectedYear} (${activeCurrency}).`,
         });
         router.refresh();
       }
@@ -200,8 +239,27 @@ export function BudgetsClient({
             </p>
           </div>
 
-          {/* Month / Year Switcher */}
-          <div className="flex items-center gap-3">
+          {/* Actions & Switchers */}
+          <div className="flex flex-wrap items-center gap-3">
+            {/* Currency Selector Pill */}
+            <div className="inline-flex items-center bg-white border border-[#E5EBE8] rounded-full p-0.5 shadow-2xs">
+              {CURRENCIES.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => handleSelectCurrency(c)}
+                  className={`px-3 py-1 rounded-full text-xs font-semibold transition-colors cursor-pointer ${
+                    activeCurrency === c
+                      ? "bg-[#0F5147] text-white"
+                      : "text-slate-600 hover:text-slate-900"
+                  }`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+
+            {/* Month / Year Switcher */}
             <div className="inline-flex items-center bg-white border border-[#E5EBE8] rounded-full p-1 shadow-2xs">
               <button
                 type="button"
@@ -406,11 +464,15 @@ export function BudgetsClient({
                   const percentNum = Number(cat.percentUsed) || 0;
                   const isOver = cat.isOverBudget;
                   const remainingNum = Number(cat.remaining) || 0;
+                  const isCoinciding = Math.abs(remainingNum) < 0.005 && Number(cat.allocated) > 0;
+                  const envelopeTxs = (monthTransactions || []).filter(
+                    (t) => t.categoryId === cat.categoryId && t.type === "EXPENSE"
+                  );
 
                   return (
                     <div key={cat.categoryId} className="p-6 hover:bg-slate-50/50 transition-colors">
                       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-2.5">
-                        <div className="flex items-center gap-2.5">
+                        <div className="flex flex-wrap items-center gap-2">
                           <span className="text-sm font-bold text-slate-900">
                             {cat.categoryName}
                           </span>
@@ -423,18 +485,22 @@ export function BudgetsClient({
                               Discretionary
                             </span>
                           )}
-                          {isOver && (
+                          {isCoinciding ? (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-blue-50 text-blue-700 border border-blue-200">
+                              ✨ Coincides with allocation
+                            </span>
+                          ) : isOver ? (
                             <span className="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200">
                               Over budget by {currencySymbol}
                               {formatWithCommas(Math.abs(remainingNum).toFixed(2))}
                             </span>
-                          )}
+                          ) : null}
                         </div>
 
                         <div className="flex items-baseline gap-4 text-xs">
                           <div>
                             <span className="text-slate-400">Spent: </span>
-                            <span className={`font-bold ${isOver ? "text-rose-600" : "text-slate-900"}`}>
+                            <span className={`font-bold ${isOver ? "text-rose-600" : isCoinciding ? "text-blue-700" : "text-slate-900"}`}>
                               {currencySymbol}
                               {formatWithCommas(cat.actual)}
                             </span>
@@ -449,15 +515,19 @@ export function BudgetsClient({
                           </div>
                           <span className="text-slate-300">/</span>
                           <div>
-                            <span className="text-slate-400">Left: </span>
+                            <span className="text-slate-400">Remainder: </span>
                             <span
                               className={`font-bold ${
-                                remainingNum < 0 ? "text-rose-600" : "text-emerald-700"
+                                isCoinciding
+                                  ? "text-blue-700"
+                                  : remainingNum < 0
+                                  ? "text-rose-600"
+                                  : "text-emerald-700"
                               }`}
                             >
-                              {remainingNum < 0 ? "-" : ""}
-                              {currencySymbol}
-                              {formatWithCommas(Math.abs(remainingNum).toFixed(2))}
+                              {isCoinciding
+                                ? `${currencySymbol}0.00 (Exact)`
+                                : `${remainingNum < 0 ? "-" : "+"}${currencySymbol}${formatWithCommas(Math.abs(remainingNum).toFixed(2))}`}
                             </span>
                           </div>
                         </div>
@@ -469,6 +539,8 @@ export function BudgetsClient({
                           className={`h-full rounded-full transition-all duration-300 ${
                             isOver
                               ? "bg-rose-500"
+                              : isCoinciding
+                              ? "bg-blue-600"
                               : percentNum >= 80
                               ? "bg-amber-400"
                               : "bg-[#0F5147]"
@@ -480,11 +552,132 @@ export function BudgetsClient({
                       <div className="flex items-center justify-between text-[11px] text-slate-400 mt-1.5">
                         <span>{percentNum.toFixed(1)}% of envelope utilized</span>
                         <span>
-                          {isOver
+                          {isCoinciding
+                            ? "Exact match to allocation"
+                            : isOver
                             ? "Alert: Exceeded allocation"
-                            : `${currencySymbol}${formatWithCommas(Math.abs(remainingNum).toFixed(2))} available`}
+                            : `${currencySymbol}${formatWithCommas(Math.abs(remainingNum).toFixed(2))} remaining cushion`}
                         </span>
                       </div>
+
+                      {/* Quick Spend View & Edit toggle */}
+                      <div className="mt-3.5 flex items-center justify-between pt-2.5 border-t border-slate-100">
+                        <button
+                          type="button"
+                          onClick={() => setExpandedEnvelopeId(expandedEnvelopeId === cat.categoryId ? null : cat.categoryId)}
+                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#0F5147] hover:underline cursor-pointer"
+                        >
+                          <LuPencil className="w-3.5 h-3.5" />
+                          <span>
+                            {expandedEnvelopeId === cat.categoryId
+                              ? "Hide Spend Breakdown"
+                              : `View & Edit Spend (${envelopeTxs.length} transaction${envelopeTxs.length === 1 ? "" : "s"})`}
+                          </span>
+                          {expandedEnvelopeId === cat.categoryId ? (
+                            <LuChevronUp className="w-3.5 h-3.5" />
+                          ) : (
+                            <LuChevronDown className="w-3.5 h-3.5" />
+                          )}
+                        </button>
+
+                        <span className="text-[11px] text-slate-500">
+                          Envelope Status:{" "}
+                          <strong
+                            className={
+                              isCoinciding
+                                ? "text-blue-700"
+                                : isOver
+                                ? "text-rose-600"
+                                : "text-emerald-700"
+                            }
+                          >
+                            {isCoinciding
+                              ? "Coincides 100% with budget"
+                              : isOver
+                              ? `Over by ${currencySymbol}${formatWithCommas(Math.abs(remainingNum).toFixed(2))}`
+                              : `${currencySymbol}${formatWithCommas(remainingNum.toFixed(2))} remainder`}
+                          </strong>
+                        </span>
+                      </div>
+
+                      {/* Collapsible Spend Details & Inline Editor */}
+                      {expandedEnvelopeId === cat.categoryId && (
+                        <div className="mt-3 p-4 bg-slate-50/80 rounded-2xl border border-slate-200/60 space-y-3 animate-in fade-in duration-150">
+                          <div className="flex items-center justify-between text-xs font-bold text-slate-800">
+                            <span>Expenses in {cat.categoryName} ({activeCurrency})</span>
+                            <span className="text-[11px] font-normal text-slate-500">
+                              Total Spent: {currencySymbol}{formatWithCommas(cat.actual)}
+                            </span>
+                          </div>
+
+                          {envelopeTxs.length === 0 ? (
+                            <p className="text-xs text-slate-400 py-1">
+                              No expenses logged for {cat.categoryName} this month.
+                            </p>
+                          ) : (
+                            <div className="divide-y divide-slate-200/60">
+                              {envelopeTxs.map((tx) => (
+                                <div key={tx.id} className="py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-xs">
+                                  <div>
+                                    <p className="font-semibold text-slate-900">{tx.description}</p>
+                                    <p className="text-[10px] text-slate-400">
+                                      {new Date(tx.date).toLocaleDateString()} • {tx.account?.name || "Account"}
+                                    </p>
+                                  </div>
+
+                                  <div className="flex items-center gap-2 self-end sm:self-auto">
+                                    {editingTxId === tx.id ? (
+                                      <div className="flex items-center gap-1.5">
+                                        <span className="font-semibold text-slate-600">{currencySymbol}</span>
+                                        <input
+                                          type="number"
+                                          step="0.01"
+                                          min="0.01"
+                                          value={editingAmount}
+                                          onChange={(e) => setEditingAmount(e.target.value)}
+                                          className="w-24 px-2 py-1 text-xs font-bold bg-white border border-slate-300 rounded-lg text-right focus:outline-none focus:border-[#0F5147]"
+                                          placeholder="0.00"
+                                        />
+                                        <button
+                                          type="button"
+                                          disabled={isSavingTx}
+                                          onClick={() => handleSaveTxAmount(tx.id)}
+                                          className="px-2.5 py-1 text-xs font-semibold bg-[#0F5147] text-white rounded-lg hover:bg-[#0C433A] cursor-pointer disabled:opacity-50"
+                                        >
+                                          {isSavingTx ? "Saving..." : "Save"}
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => setEditingTxId(null)}
+                                          className="px-2 py-1 text-xs text-slate-500 hover:text-slate-800 rounded-lg"
+                                        >
+                                          Cancel
+                                        </button>
+                                      </div>
+                                    ) : (
+                                      <div className="flex items-center gap-2.5">
+                                        <span className="font-bold text-slate-900">
+                                          {currencySymbol}{formatWithCommas(String(tx.amount))}
+                                        </span>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            setEditingTxId(tx.id);
+                                            setEditingAmount(String(tx.amount));
+                                          }}
+                                          className="px-2.5 py-1 text-[11px] font-semibold text-[#0F5147] bg-white border border-slate-200 rounded-lg hover:bg-slate-50 transition-colors cursor-pointer"
+                                        >
+                                          Edit Amount
+                                        </button>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      )}
                     </div>
                   );
                 })}
@@ -519,31 +712,62 @@ export function BudgetsClient({
                 {categories.map((cat) => {
                   const existingRow = initialBudget.categories.find((c) => c.categoryId === cat.id);
                   const isEssential = existingRow ? existingRow.isEssential : false;
+                  const spentNum = existingRow ? Number(existingRow.actual) : 0;
+                  const rawAlloc = editableAllocations[cat.id] ?? (existingRow?.allocated || "0.00");
+                  const allocNum = Number(rawAlloc) || 0;
+                  const diff = allocNum - spentNum;
+                  const coincides = Math.abs(diff) < 0.005;
+
                   return (
                     <div
                       key={cat.id}
-                      className="flex items-center justify-between gap-4 p-3 rounded-xl border border-slate-100 bg-slate-50/50"
+                      className="p-3.5 rounded-2xl border border-slate-100 bg-slate-50/50 space-y-2"
                     >
-                      <div>
-                        <div className="text-xs font-semibold text-slate-900">{cat.name}</div>
-                        <div className="text-[10px] text-slate-400">
-                          {isEssential ? "Essential" : "Flexible"}
+                      <div className="flex items-center justify-between gap-4">
+                        <div>
+                          <div className="text-xs font-bold text-slate-900">{cat.name}</div>
+                          <div className="text-[10px] text-slate-400">
+                            {isEssential ? "Essential" : "Flexible"} • Spent so far:{" "}
+                            <span className="font-semibold text-slate-700">
+                              {currencySymbol}{spentNum.toFixed(2)}
+                            </span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-1.5 w-36">
+                          <span className="text-xs font-semibold text-slate-500">{currencySymbol}</span>
+                          <input
+                            type="number"
+                            step="0.01"
+                            value={editableAllocations[cat.id] ?? ""}
+                            onChange={(e) =>
+                              setEditableAllocations((prev) => ({
+                                ...prev,
+                                [cat.id]: e.target.value,
+                              }))
+                            }
+                            placeholder="0.00"
+                            className="w-full text-right text-xs font-bold rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-900 focus:border-[#0F5147] focus:outline-none focus:ring-1 focus:ring-[#0F5147]"
+                          />
                         </div>
                       </div>
-                      <div className="flex items-center gap-1.5 w-36">
-                        <span className="text-xs font-semibold text-slate-500">{currencySymbol}</span>
-                        <input
-                          type="text"
-                          value={editableAllocations[cat.id] ?? ""}
-                          onChange={(e) =>
-                            setEditableAllocations((prev) => ({
-                              ...prev,
-                              [cat.id]: e.target.value,
-                            }))
-                          }
-                          placeholder="0.00"
-                          className="w-full text-right text-xs font-semibold rounded-lg border border-slate-200 bg-white px-2.5 py-1.5 text-slate-900 focus:border-[#0F5147] focus:outline-none"
-                        />
+
+                      <div className="flex items-center justify-between text-[11px] pt-1.5 border-t border-slate-200/50">
+                        <span className="text-slate-500">Remainder / Left:</span>
+                        <span
+                          className={`font-semibold ${
+                            coincides
+                              ? "text-blue-700 font-bold"
+                              : diff > 0
+                              ? "text-emerald-700 font-bold"
+                              : "text-rose-600 font-bold"
+                          }`}
+                        >
+                          {coincides
+                            ? `✨ Matches Spent Exactly (${currencySymbol}0.00 left)`
+                            : diff > 0
+                            ? `+${currencySymbol}${diff.toFixed(2)} remaining cushion`
+                            : `-${currencySymbol}${Math.abs(diff).toFixed(2)} over allocated budget`}
+                        </span>
                       </div>
                     </div>
                   );
