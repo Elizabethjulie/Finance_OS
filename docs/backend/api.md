@@ -16,7 +16,7 @@ All monetary amounts cross the client/server boundary as **positive decimal stri
 
 ## 2. REST API Endpoints (`app/api/**`)
 
-A complete Postman collection is available at [`postman/finance-os.postman_collection.json`](../postman/finance-os.postman_collection.json) with environment [`postman/finance-os.postman_environment.json`](../postman/finance-os.postman_environment.json).
+A complete Postman collection is available at [`postman/finance-os.postman_collection.json`](../../postman/finance-os.postman_collection.json) with environment [`postman/finance-os.postman_environment.json`](../../postman/finance-os.postman_environment.json).
 
 ### Auth & Onboarding
 - **`POST /api/auth/signup`**
@@ -185,8 +185,9 @@ Full architecture, zero-hallucination mathematical grounding, and prompt design 
 
 ## Architecture References
 - **[AI Architecture & Specification (Phase 7)](./ai-architecture.md)**: Zero-hallucination background AI engine for smart categorization, plain-language monthly insights with "Why?" mathematical grounding, and executive report narratives.
-- **[Multi-Currency & Foreign Exchange (FX) Architecture](./fx-currency-architecture.md)**: Current multi-currency isolation model and future specification for live central bank FX rates, consolidated portfolio net worth estimation, and atomic cross-currency transfers.
-- **[Budget Planner Future Review & Evolution Roadmap](./budget-planner-future-review.md)**: Documentation of active budget generator weights, excluded categories (rent, food, education, family), and the roadmap for user-configurable lifestyle profiles, interactive sliders, and historical spending learning.
+- **[Multi-Currency & Foreign Exchange (FX) Architecture](./fx-currency-architecture.md)**: Live market exchange rate engine, multi-currency isolation model, and real-time conversion API without hardcoded constants.
+- **[Database Schema & Models Reference](./database-schema.md)**: PostgreSQL schema, Prisma models, constraints, and currency-isolated relationship indexing.
+- **[Budget Planner & Frontend Architecture](../frontend/budget-planner.md)**: Goal-based spending envelopes, allocation algorithms, and interactive spend editing UX.
 
 
 

@@ -47,7 +47,7 @@ export type GeneratedBudgetPlan = {
 
 /**
  * Categories excluded from automated generation per user request.
- * See docs/budget-planner-future-review.md for planned future re-inclusion
+ * See docs/frontend/budget-planner.md for planned future re-inclusion
  * and user-configurable lifestyle profile architecture.
  */
 const EXCLUDED_CATEGORY_NAMES = new Set([
