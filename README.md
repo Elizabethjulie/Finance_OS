@@ -155,8 +155,8 @@ The application is now accessible at:
 
 To log in to the pre-configured workspace:
 - **URL**: `http://localhost:3000/login`
-- **Email**: `bethjulius08@gmail.com`
-- **Password**: `ManiMan20`
+- **Email**: `johndoe@gmail.com`
+- **Password**: `password`
 
 *(Or register a new account at `http://localhost:3000/signup` and complete the 2-step onboarding wizard).*
 
